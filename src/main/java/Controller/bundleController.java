@@ -18,6 +18,12 @@ public class bundleController {
     @Autowired
     bundleService bundleService;
 
+    @GetMapping
+    public ResponseEntity<List<bundleEntity>> getAllBundles() {
+        List<bundleEntity> bundles = bundleService.findByPriceBundleGreaterThan(0); // Assuming you want to get all bundles with price greater than 0
+        return ResponseEntity.ok(bundles);
+    }
+
     @GetMapping("/sort/greaterThan/{price}") //change maybe, probably
     public List<bundleEntity> findByPriceBundleGreaterThan(@PathVariable("price") int price) {
         return bundleService.findByPriceBundleGreaterThan(price);

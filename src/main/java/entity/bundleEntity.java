@@ -4,12 +4,14 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.time.LocalDate;
+
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Data
-@Table(name = "Bundle")
+@Table(name = "Bundles")
 
 // attributes:  name, destiny, desc, available dates, duration, price, included services,
 //              conditions, restrictions, available slots.
@@ -34,10 +36,10 @@ public class bundleEntity {
     private String descBundle;
 
     @Column(name = "start_date_bundle", nullable = false)
-    private String startDateBundle; // to do: change to date type
+    private LocalDate startDateBundle;
 
     @Column(name = "end_date_bundle", nullable = false)
-    private String endDateBundle; // to do: change to date type and must end after start date
+    private LocalDate endDateBundle; // add proper restrictions for dates (start date must be before end date, and both must be in the future)
 
     @Column(name = "price_bundle", nullable = false)
     private int priceBundle; // to do: add restrictions for price (must be positive and not 0)
@@ -45,5 +47,5 @@ public class bundleEntity {
     @Column(name = "available_slots_bundle", nullable = false)
     private int availableSlotsBundle; // to do: add restrictions for available slots (must be positive and not 0)
 
-    //to do: add the rest.
+    //verify this values
 }
