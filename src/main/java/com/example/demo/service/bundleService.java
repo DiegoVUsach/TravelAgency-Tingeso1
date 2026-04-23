@@ -1,15 +1,14 @@
-package Service;
+package com.example.demo.service;
 
-import Controller.bundleController;
-import entity.bundleEntity;
+
+import com.example.demo.entity.bundleEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import repository.bundleRepository;
+import com.example.demo.repository.bundleRepository;
 
 import java.util.List;
 
 @Service
-
 public class bundleService {
 
     private bundleRepository bundleRepository;

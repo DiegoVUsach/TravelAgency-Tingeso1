@@ -1,4 +1,4 @@
-package entity;
+package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -47,5 +47,8 @@ public class bundleEntity {
     @Column(name = "available_slots_bundle", nullable = false)
     private int availableSlotsBundle; // to do: add restrictions for available slots (must be positive and not 0)
 
-    //verify this values
+    @Column(name = "can_be_modified", nullable = false) //modify this, it has 2 tiers of modification, for it to be deleted at all and the other for modifying the bundle
+    private boolean canBeModified; // to do: add restrictions for modification (it cannot be modified if it already has a reservation, according to the business rules)
+
+    //category, to add later for ease of filtering bundles
 }

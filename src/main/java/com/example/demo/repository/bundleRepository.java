@@ -1,6 +1,6 @@
-package repository;
+package com.example.demo.repository;
 
-import entity.bundleEntity;
+import com.example.demo.entity.bundleEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,5 +13,6 @@ public interface bundleRepository extends JpaRepository<bundleEntity,Long> {
     //add necesary declaration of method here
 
     List<bundleEntity> findByPriceBundleGreaterThan(int price);
+
 }
 

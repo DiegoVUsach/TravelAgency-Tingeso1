@@ -1,9 +1,8 @@
-package Controller;
-//controller receives query
+package com.example.demo.controller;
 
 
-import Service.bundleService;
-import entity.bundleEntity;
+import com.example.demo.service.bundleService;
+import com.example.demo.entity.bundleEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
