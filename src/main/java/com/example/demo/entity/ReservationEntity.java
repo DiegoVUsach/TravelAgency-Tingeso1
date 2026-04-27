@@ -1,4 +1,4 @@
 package com.example.demo.entity;
 
-public class reservationEntity {
+public class ReservationEntity {
 }

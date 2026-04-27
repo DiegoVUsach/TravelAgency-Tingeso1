@@ -1,4 +1,4 @@
 package com.example.demo.entity;
 
-public class paymentEntity {
+public class PaymentEntity {
 }

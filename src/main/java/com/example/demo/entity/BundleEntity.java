@@ -15,7 +15,8 @@ import java.time.LocalDate;
 
 // attributes:  name, destiny, desc, available dates, duration, price, included services,
 //              conditions, restrictions, available slots.
-public class bundleEntity {
+public class BundleEntity {
+
 
     // primary key
     @Id
@@ -46,6 +47,10 @@ public class bundleEntity {
 
     @Column(name = "available_slots_bundle", nullable = false)
     private int availableSlotsBundle; // to do: add restrictions for available slots (must be positive and not 0)
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "state_bundle", nullable = false)
+    private BundleState stateBundle;
 
     @Column(name = "can_be_modified", nullable = false) //modify this, it has 2 tiers of modification, for it to be deleted at all and the other for modifying the bundle
     private boolean canBeModified; // to do: add restrictions for modification (it cannot be modified if it already has a reservation, according to the business rules)
