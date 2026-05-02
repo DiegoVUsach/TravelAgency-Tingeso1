@@ -40,7 +40,10 @@ public class BundleEntity {
     private LocalDate startDateBundle;
 
     @Column(name = "end_date_bundle", nullable = false)
-    private LocalDate endDateBundle; // add proper restrictions for dates (start date must be before end date, and both must be in the future)
+    private LocalDate endDateBundle; // add proper restrictions for dates (start date must be before end date)
+
+    @Column(name = "duration_bundle", nullable = false)
+    private int durationBundle;
 
     @Column(name = "price_bundle", nullable = false)
     private int priceBundle; // to do: add restrictions for price (must be positive and not 0)

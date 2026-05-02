@@ -1,32 +1,32 @@
 package com.example.demo.controller;
 
-
 import com.example.demo.service.BundleService;
 import com.example.demo.entity.BundleEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/api/v1/bundle")
 @CrossOrigin("*")
 public class BundleController {
+
     @Autowired
     BundleService bundleService;
 
     @GetMapping
     public ResponseEntity<List<BundleEntity>> getAllBundles() {
-        List<BundleEntity> bundles = bundleService.findByPriceBundleGreaterThan(0); // Assuming you want to get all bundles with price greater than 0
+        List<BundleEntity> bundles = bundleService.findByPriceBundleGreaterThan(0);
         return ResponseEntity.ok(bundles);
     }
 
-    @GetMapping("/sort/greaterThan/{price}") //change maybe, probably
+    @GetMapping("/sort/greaterThan/{price}")
     public List<BundleEntity> findByPriceBundleGreaterThan(@PathVariable("price") int price) {
         return bundleService.findByPriceBundleGreaterThan(price);
-
     }
 
     @PostMapping
@@ -34,7 +34,20 @@ public class BundleController {
         return bundleService.saveBundle(bundleEntity);
     }
 
+    // E3 method, for bundle search
+    @GetMapping("/search")
+    public ResponseEntity<List<BundleEntity>> searchBundles(
+            @RequestParam(required = false) String destiny,
+            @RequestParam(required = false) Integer minPrice,
+            @RequestParam(required = false) Integer maxPrice,
+            @RequestParam(required = false) Integer duration,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
 
+        List<BundleEntity> results = bundleService.searchAvailableBundles(
+                destiny, minPrice, maxPrice, duration, startDate, endDate
+        );
 
-
+        return ResponseEntity.ok(results);
+    }
 }

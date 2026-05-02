@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import com.example.demo.repository.BundleRepository;
 import com.example.demo.repository.ReservationRepository;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -26,6 +28,26 @@ public class BundleService {
         return bundleRepository.findByPriceBundleGreaterThan(price);
     }
 
+    // E3 method, for bundle search
+    public List<BundleEntity> searchAvailableBundles(
+            String destiny,
+            Integer minPrice,
+            Integer maxPrice,
+            Integer duration,
+            LocalDate startDate,
+            LocalDate endDate) {
+
+        return bundleRepository.searchAvailableBundles(
+                BundleState.AVAILABLE,
+                destiny,
+                minPrice,
+                maxPrice,
+                duration,
+                startDate,
+                endDate
+        );
+    }
+
     public BundleEntity saveBundle(BundleEntity bundleEntity) {
         // H2 validations
         if (bundleEntity.getPriceBundle() <= 0) {
@@ -39,6 +61,12 @@ public class BundleService {
             throw new IllegalArgumentException("The start date must be before the end date and not null.");
         }
 
+        int calculatedDuration = (int) ChronoUnit.DAYS.between(
+                bundleEntity.getStartDateBundle(),
+                bundleEntity.getEndDateBundle()
+        );
+        bundleEntity.setDurationBundle(calculatedDuration); // automatic duration calc
+
         return bundleRepository.save(bundleEntity);
     }
 
@@ -49,31 +77,35 @@ public class BundleService {
         long currentReservations = reservationRepository.countByBundleIdBundle(id);
 
         if (currentReservations > 0) {
-            // No se pueden modificar fechas ni precio si ya hay reservas
             if (!existingBundle.getStartDateBundle().equals(newDetails.getStartDateBundle()) ||
                     !existingBundle.getEndDateBundle().equals(newDetails.getEndDateBundle()) ||
                     existingBundle.getPriceBundle() != newDetails.getPriceBundle()) {
-                throw new IllegalStateException("No se pueden modificar fechas o precio: el paquete ya tiene reservas registradas.");
+                throw new IllegalStateException("You cannot modify the price/date: there are already reservations in place.");
             }
 
-            // No se puede bajar el cupo total a un número menor de los que ya están reservados
             if (newDetails.getAvailableSlotsBundle() < currentReservations) {
-                throw new IllegalStateException("No se puede reducir el cupo total a " + newDetails.getAvailableSlotsBundle() +
-                        " porque ya existen " + currentReservations + " reservas registradas.");
+                throw new IllegalStateException("You cannot reduce the total slots to " + newDetails.getAvailableSlotsBundle() +
+                        " because there are already " + currentReservations + " reservations registered.");
             }
         } else {
-            // Si no hay reservas, aún debemos validar que el nuevo cupo no sea <= 0
             if (newDetails.getAvailableSlotsBundle() <= 0) {
-                throw new IllegalArgumentException("Los cupos deben ser mayores a 0.");
+                throw new IllegalArgumentException("Available slots must be above 0.");
             }
+            existingBundle.setStartDateBundle(newDetails.getStartDateBundle());
+            existingBundle.setEndDateBundle(newDetails.getEndDateBundle());
         }
 
-        // 3. Si pasa todas las validaciones, actualizamos los campos
         existingBundle.setNameBundle(newDetails.getNameBundle());
         existingBundle.setDestinyBundle(newDetails.getDestinyBundle());
         existingBundle.setDescBundle(newDetails.getDescBundle());
         existingBundle.setAvailableSlotsBundle(newDetails.getAvailableSlotsBundle());
         existingBundle.setStateBundle(newDetails.getStateBundle());
+
+        int recalculatedDuration = (int) ChronoUnit.DAYS.between(
+                existingBundle.getStartDateBundle(),
+                existingBundle.getEndDateBundle()
+        );
+        existingBundle.setDurationBundle(recalculatedDuration);
 
         return bundleRepository.save(existingBundle);
     }
