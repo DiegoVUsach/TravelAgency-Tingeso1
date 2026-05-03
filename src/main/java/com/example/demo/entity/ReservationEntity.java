@@ -21,20 +21,20 @@ public class ReservationEntity {
     // TBI keycloak stuff here
     @Column(nullable = false)
     private String userEmail;
+    // TBI keycloak stuff up
 
-    // check later 02 05 2026 from hero dowm
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bundle_id", nullable = false)
     private BundleEntity bundle;
 
     @Column(nullable = false)
-    private Integer numberOfPassengers;
+    private Integer numberOfPassengers; //maybe ask teacher about this
 
     @Column(nullable = false)
     private LocalDate reservationDate;
 
     @Column(nullable = false)
-    private Integer totalAmount; // Monto final tras aplicar los descuentos
+    private Integer totalAmount; // fianl amount after discounts
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
