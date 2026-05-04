@@ -1,10 +1,10 @@
 Personal notes, do not take as instructions, just a reminder for myself
 
 Progress
-E1 must be done in the end
+E1 must be done at the end
 E2 back ok
 E3 back okish, query is sus in service
-E4 check controller
+E4 needs to implement the rest of  the rules, dto might be needed but idk enough about it
 E5
 E6
 E7

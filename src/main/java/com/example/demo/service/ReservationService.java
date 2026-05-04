@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
-// evetually check if it has to be ablñe to modify the rates of discounts
+// evetually check if it has to be able to modify the rates of discounts
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +31,10 @@ public class ReservationService {
 
         BundleEntity bundle = bundleRepository.findById(bundleId)
                 .orElseThrow(() -> new RuntimeException("El paquete turístico no existe"));
+
+        if(bundle.getStateBundle() != com.example.demo.entity.BundleState.AVAILABLE) {
+            throw new IllegalStateException("El paquete turístico no está Disponible");
+        }
 
         // are there any slots available for this bundle?
         if (bundle.getAvailableSlotsBundle() < passengers) {
