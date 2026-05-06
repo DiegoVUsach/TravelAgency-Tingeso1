@@ -9,8 +9,11 @@ E5
 E6
 E7
 
-
+e4 falta, cambiar desct desde admin, dto, manejar 2+ paq, limites desct
 
 
 remember to change all exceptions to english and to use the same format for all of them
 enti -> repo > service > controller
+
+Details of the implementation of the rules:
+E4, timeout time is set to be a day after the reservation was done
