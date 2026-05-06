@@ -4,12 +4,12 @@ Progress
 E1 must be done at the end
 E2 back ok
 E3 back okish, query is sus in service
-E4 needs to implement the rest of  the rules, dto might be needed but idk enough about it
+E4 decent/passable
 E5
 E6
 E7
 
-e4 falta, cambiar desct desde admin, dto, manejar 2+ paq, limites desct
+e4 falta, manejar 2+ paq
 
 
 remember to change all exceptions to english and to use the same format for all of them
@@ -17,3 +17,5 @@ enti -> repo > service > controller
 
 Details of the implementation of the rules:
 E4, timeout time is set to be a day after the reservation was done
+e4, discounts are managed with DiscountConfigEntity, currently does not exclude any
+e4, no discount controller

@@ -7,7 +7,9 @@ import com.example.demo.entity.BundleEntity;
 import com.example.demo.entity.ReservationEntity;
 import com.example.demo.entity.ReservationState;
 import com.example.demo.repository.BundleRepository;
+import com.example.demo.repository.DiscountConfigRepository;
 import com.example.demo.repository.ReservationRepository;
+import com.example.demo.entity.DiscountConfigEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,26 +25,39 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final BundleRepository bundleRepository;
+    private final DiscountConfigRepository discountConfigRepository;
 
     @Transactional
     public ReservationResponseDTO processCartReservations(ReservationRequestDTO request) {
 
         if (request.getItems() == null || request.getItems().isEmpty()) {
-            throw new IllegalArgumentException("El carrito no  puede estar vacio.");
+            throw new IllegalArgumentException("The cart cannot be empty.");
         }
 
         String email = request.getUserEmail();
         double globalDiscount = 0.0;
 
-        // Discount 1: Multiple packages in the same purchase (2 or more = 5% off)
-        if (request.getItems().size() >= 2) {
-            globalDiscount += 0.05;
+        // Fetch dynamic configurations from the database (with default fallbacks), does not
+        int multiPackageThreshold = getConfigThreshold("MULTIPLE_PACKAGES", 2);
+        double multiPackageDiscount = getConfigValue("MULTIPLE_PACKAGES", 0.05);
+
+        int frequentClientThreshold = getConfigThreshold("FREQUENT_CLIENT", 3);
+        double frequentClientDiscount = getConfigValue("FREQUENT_CLIENT", 0.05);
+
+        int volumeThreshold = getConfigThreshold("VOLUME_DISCOUNT", 4);
+        double volumeDiscount = getConfigValue("VOLUME_DISCOUNT", 0.10);
+
+        double maxDiscountLimit = getConfigValue("MAX_DISCOUNT_LIMIT", 0.20);
+
+        // Discount 1: Multiple packages in the same purchase
+        if (request.getItems().size() >= multiPackageThreshold) {
+            globalDiscount += multiPackageDiscount;
         }
 
-        // Discount 2: Frequent Client (3 or more paid reservations = 5% off)
+        // Discount 2: Frequent Client
         long paidReservations = reservationRepository.countByUserEmailAndState(email, ReservationState.CONFIRMED);
-        if (paidReservations >= 3) {
-            globalDiscount += 0.05;
+        if (paidReservations >= frequentClientThreshold) {
+            globalDiscount += frequentClientDiscount;
         }
 
         int cartSubtotal = 0;
@@ -52,25 +67,25 @@ public class ReservationService {
         // Process each item in the cart
         for (CartItemDTO item : request.getItems()) {
             if (item.getPassengers() <= 0) {
-                throw new IllegalArgumentException("Los pasajeros deben ser mayores a 0.");
+                throw new IllegalArgumentException("Passengers must be greater than 0.");
             }
 
             BundleEntity bundle = bundleRepository.findById(item.getBundleId())
-                    .orElseThrow(() -> new RuntimeException("Paquete no encontrado por ID: " + item.getBundleId()));
+                    .orElseThrow(() -> new RuntimeException("Bundle not found with ID: " + item.getBundleId()));
 
             if (bundle.getAvailableSlotsBundle() < item.getPassengers()) {
-                throw new IllegalStateException("No hay espacio suficiente para el paquete: " + bundle.getNameBundle());
+                throw new IllegalStateException("Not enough available slots for bundle: " + bundle.getNameBundle());
             }
 
-            // Discount 3: Volume discount per item (e.g., 4 or more passengers = 10% off)
+            // Discount 3: Volume discount per item
             double itemDiscount = globalDiscount;
-            if (item.getPassengers() >= 4) {
-                itemDiscount += 0.10;
+            if (item.getPassengers() >= volumeThreshold) {
+                itemDiscount += volumeDiscount;
             }
 
-            // Set max discount limit (ex: 20% max accumulation)
-            if (itemDiscount > 0.20) {
-                itemDiscount = 0.20;
+            // Set max discount limit dynamically
+            if (itemDiscount > maxDiscountLimit) {
+                itemDiscount = maxDiscountLimit;
             }
 
             // Calculations
@@ -132,5 +147,19 @@ public class ReservationService {
 
             System.out.println("Reserva ID " + reservation.getId() + " expirada. Cupos devueltos al paquete " + bundle.getIdBundle());
         }
+    }
+
+
+    // aux methods
+    private double getConfigValue(String key, double defaultValue) {
+        return discountConfigRepository.findByConfigKey(key)
+                .map(DiscountConfigEntity::getConfigValue)
+                .orElse(defaultValue);
+    }
+
+    private int getConfigThreshold(String key, int defaultThreshold) {
+        return discountConfigRepository.findByConfigKey(key)
+                .map(DiscountConfigEntity::getThreshold)
+                .orElse(defaultThreshold);
     }
 }
