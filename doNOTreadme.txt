@@ -9,7 +9,7 @@ E5
 E6
 E7
 
-e4 falta, manejar 2+ paq
+e4 falta, manejar 2+ paq/revisar
 
 
 remember to change all exceptions to english and to use the same format for all of them
