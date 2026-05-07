@@ -149,6 +149,33 @@ public class ReservationService {
         }
     }
 
+   // maybe create one for oldest first
+    public List<ReservationEntity> getUserReservations(String email) {
+        return reservationRepository.findByUserEmailOrderByReservationDateDesc(email);
+    }
+
+    // E6
+    public List<ReservationEntity> getAllReservations() {
+        return reservationRepository.findAll();
+    }
+
+    // Update reservation state, for example, to cancel manually or to confirm after payment. This method can be used by admins or by the system (for example, to cancel expired reservations)
+    @Transactional
+    public ReservationEntity updateReservationState(Long id, ReservationState newState) {
+        ReservationEntity reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada con ID: " + id));
+
+        if (reservation.getState() == ReservationState.CANCELED && newState == ReservationState.CONFIRMED) {
+            throw new IllegalStateException("Una reserva cancelada no puede ser confirmada. El sistema la bloquea.");
+        }
+
+        // tbd more mod rules, check if i have the time for it
+        reservation.setState(newState);
+
+
+
+        return reservationRepository.save(reservation);
+    }
 
     // aux methods
     private double getConfigValue(String key, double defaultValue) {

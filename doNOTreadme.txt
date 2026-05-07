@@ -1,13 +1,22 @@
 Personal notes, do not take as instructions, just a reminder for myself
 
 Progress
+# BACKEND
 E1 must be done at the end
 E2 back ok
 E3 back okish, query is sus in service
 E4 decent/passable
-E5
+E5 kinda done
 E6
 E7
+
+# FRONTEND
+E1
+E2
+E3
+
+
+
 
 e4 falta, manejar 2+ paq/revisar
 
