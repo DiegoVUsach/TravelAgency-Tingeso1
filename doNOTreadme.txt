@@ -7,6 +7,14 @@ E2 back ok
 E3 back okish, query is sus in service
 E4 decent/passable
 E5 kinda done
+E6 kinda done
+E7
+# Backend tests
+E1
+E2
+E3
+E4
+E5
 E6
 E7
 
@@ -14,6 +22,10 @@ E7
 E1
 E2
 E3
+E4
+E5
+E6
+E7
 
 
 
@@ -28,3 +40,20 @@ Details of the implementation of the rules:
 E4, timeout time is set to be a day after the reservation was done
 e4, discounts are managed with DiscountConfigEntity, currently does not exclude any
 e4, no discount controller
+
+## steps to run this bc i know i'll forget how to do the bare min:
+open cmd and run:
+mysql -u root -p
+password: clave1234 or smth else along those lines
+
+create database if it doesn't exists with:
+CREATE DATABASE TravelAgency;
+
+check if it exists with
+SHOW DATABASES;
+
+check all tables with (both in order):
+USE TravelAgency;
+SHOW TABLES;
+
+run this code

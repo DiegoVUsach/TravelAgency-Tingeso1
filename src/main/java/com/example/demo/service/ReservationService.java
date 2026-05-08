@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.CartItemDTO;
+import com.example.demo.dto.ReservationReceiptDTO;
 import com.example.demo.dto.ReservationRequestDTO;
 import com.example.demo.dto.ReservationResponseDTO;
 import com.example.demo.entity.BundleEntity;
@@ -175,6 +176,37 @@ public class ReservationService {
 
 
         return reservationRepository.save(reservation);
+    }
+
+
+    // e6, receipt
+
+    public ReservationReceiptDTO generateReceipt(Long reservationId) {
+
+        ReservationEntity reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada con ID: " + reservationId));
+
+
+        if (reservation.getState() != ReservationState.CONFIRMED) {
+            throw new IllegalStateException("Error: No se puede emitir un comprobante. La reserva se encuentra en estado: " + reservation.getState());
+        }
+
+
+        ReservationReceiptDTO receipt = new ReservationReceiptDTO();
+        // receipt id - year
+        receipt.setReceiptCode("REC-" + reservation.getId() + "-" + reservation.getReservationDate().getYear());
+        receipt.setIssueDate(LocalDate.now());
+        receipt.setClientEmail(reservation.getUserEmail());
+
+
+        receipt.setBundleName(reservation.getBundle().getNameBundle());
+        receipt.setDestination(reservation.getBundle().getDestinyBundle()); // look at this point later
+
+        receipt.setNumberOfPassengers(reservation.getNumberOfPassengers());
+        receipt.setTotalPaid(reservation.getTotalAmount());
+        receipt.setStatus("PAGADO OFICIALMENTE");
+
+        return receipt;
     }
 
     // aux methods
