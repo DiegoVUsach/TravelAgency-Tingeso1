@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.PackageRankingDTO;
 import com.example.demo.dto.ReservationReceiptDTO;
 import com.example.demo.dto.ReservationRequestDTO;
 import com.example.demo.dto.ReservationResponseDTO;
@@ -7,10 +8,13 @@ import com.example.demo.entity.ReservationEntity;
 import com.example.demo.entity.ReservationState;
 import com.example.demo.service.ReservationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -19,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReservationController {
 
+    @Autowired
     private final ReservationService reservationService;
 
     @PostMapping("/cart")
@@ -59,5 +64,29 @@ public class ReservationController {
     public ResponseEntity<ReservationReceiptDTO> getReservationReceipt(@PathVariable Long id) {
         ReservationReceiptDTO receipt = reservationService.generateReceipt(id);
         return ResponseEntity.ok(receipt);
+    }
+
+    //e7
+    /**
+     * Reporte 1: Listado de Ventas por Período
+     * GET /api/v1/reservations/reports/sales?startDate=2026-01-01&endDate=2026-12-31
+     */
+    @GetMapping("/reports/sales")
+    public ResponseEntity<List<ReservationEntity>> getSalesReport(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        List<ReservationEntity> sales = reservationService.getSalesByPeriod(startDate, endDate);
+        return ResponseEntity.ok(sales);
+    }
+
+    /**
+     * Reporte 2: Ranking de Paquetes Vendidos
+     * GET /api/v1/reservations/reports/ranking
+     */
+    @GetMapping("/reports/ranking")
+    public ResponseEntity<List<PackageRankingDTO>> getPackageRanking() {
+        List<PackageRankingDTO> ranking = reservationService.getPackageRanking();
+        return ResponseEntity.ok(ranking);
     }
 }

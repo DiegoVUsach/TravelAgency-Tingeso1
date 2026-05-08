@@ -57,3 +57,8 @@ USE TravelAgency;
 SHOW TABLES;
 
 run this code
+
+FRONTEND
+cmd
+in the front forlder run
+npm run dev
