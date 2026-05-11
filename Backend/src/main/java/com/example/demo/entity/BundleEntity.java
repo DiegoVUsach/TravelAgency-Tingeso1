@@ -25,7 +25,6 @@ public class BundleEntity {
     private Long idBundle;
 
     // basic fields
-    // must have fields (name, destiny, desc., start date, end date, price and available slots)
 
     @Column(name = "name_bundle", length = 80, nullable = false)
     private String nameBundle;
@@ -40,13 +39,13 @@ public class BundleEntity {
     private LocalDate startDateBundle;
 
     @Column(name = "end_date_bundle", nullable = false)
-    private LocalDate endDateBundle; // add proper restrictions for dates (start date must be before end date)
+    private LocalDate endDateBundle;
 
     @Column(name = "duration_bundle", nullable = false)
     private int durationBundle;
 
     @Column(name = "price_bundle", nullable = false)
-    private int priceBundle; // to do: add restrictions for price (must be positive and not 0)
+    private int priceBundle;
 
     @Column(name = "available_slots_bundle", nullable = false)
     private int availableSlotsBundle; // to do: add restrictions for available slots (must be positive and not 0)

@@ -27,6 +27,14 @@ E5
 E6
 E7
 
+# Keycloak
+
+
+# Versionamiento y Continuous Delivery (CI/CD)
+
+- Pruebas Unitarias (Testing)
+- Pipeline de Continuous Delivery (Entrega Continua) - docker, github actions, etc
+- Despliegue en Producción (Nube)
 
 
 
