@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // We will create these components in the next steps
-// import Navbar from './components/Navbar';
+import Navbar from './components/Navbar';
 import Home from './pages/Home';
 // import Catalog from './pages/Catalog';
 // import Booking from './pages/Booking';
