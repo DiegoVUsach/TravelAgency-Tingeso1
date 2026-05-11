@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Spinner, Alert, Form, Button, Card } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Card, Spinner, Alert } from 'react-bootstrap';
 import { bundleService } from '../services/bundleService';
 import BundleCard from '../components/BundleCard';
 
@@ -8,114 +8,112 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Estados para los filtros de búsqueda
-  const [searchDestiny, setSearchDestiny] = useState('');
-  const [searchMaxPrice, setSearchMaxPrice] = useState('');
+  // One object to manage all filter states
+  const [filters, setFilters] = useState({
+    destiny: '',
+    minPrice: '',
+    maxPrice: '',
+    duration: '',
+    startDate: '',
+    endDate: '',
+    experience: '' 
+  });
 
-  // Cargar todos los paquetes al inicio
   useEffect(() => {
-    fetchBundles();
+    handleSearch();
   }, []);
 
-  const fetchBundles = () => {
-    setLoading(true);
-    bundleService.getAllBundles()
-      .then((data) => {
-        setBundles(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError("Error fetching the catalog.");
-        setLoading(false);
-      });
-  };
-
-  // Función que se ejecuta al presionar "Search"
   const handleSearch = (e) => {
-    e.preventDefault(); // Evita que la página se recargue
+    if (e) e.preventDefault();
     setLoading(true);
-    
-    bundleService.searchBundles(searchDestiny, searchMaxPrice)
-      .then((data) => {
+    bundleService.searchAvailableBundles(filters)
+      .then(data => {
         setBundles(data);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error(err);
-        setError("Error searching packages.");
+      .catch(() => {
+        setError("Could not load catalog.");
         setLoading(false);
       });
   };
 
-  // Función para limpiar filtros
-  const handleClear = () => {
-    setSearchDestiny('');
-    setSearchMaxPrice('');
-    fetchBundles(); // Vuelve a traer todo
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({ ...filters, [name]: value });
   };
 
   return (
-    <Container>
-      <h2 className="mb-4">Explore our Travel Packages</h2>
-
-      {/* --- SECCIÓN DEL BUSCADOR --- */}
-      <Card className="mb-4 shadow-sm">
-        <Card.Body>
+    <Container fluid> {/* Use fluid for full width */}
+      <Row>
+        {/* SIDEBAR COLUMN */}
+        <Col md={3} className="bg-light p-4 shadow-sm" style={{ minHeight: '90vh' }}>
+          <h4>Filters</h4>
           <Form onSubmit={handleSearch}>
-            <Row className="align-items-end">
-              <Col md={4} className="mb-3 mb-md-0">
-                <Form.Group>
-                  <Form.Label>Destiny</Form.Label>
-                  <Form.Control 
-                    type="text" 
-                    placeholder="e.g. Patagonia" 
-                    value={searchDestiny}
-                    onChange={(e) => setSearchDestiny(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={4} className="mb-3 mb-md-0">
-                <Form.Group>
-                  <Form.Label>Max Price (CLP)</Form.Label>
-                  <Form.Control 
-                    type="number" 
-                    placeholder="e.g. 500000" 
-                    value={searchMaxPrice}
-                    onChange={(e) => setSearchMaxPrice(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={4}>
-                <Button variant="primary" type="submit" className="me-2">
-                  Search
-                </Button>
-                <Button variant="secondary" onClick={handleClear}>
-                  Clear
-                </Button>
-              </Col>
-            </Row>
+            <Form.Group className="mb-3">
+              <Form.Label>Destiny</Form.Label>
+              <Form.Control name="destiny" value={filters.destiny} onChange={handleInputChange} placeholder="e.g. Patagonia" />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Price Range (Min - Max)</Form.Label>
+              <div className="d-flex gap-2">
+                <Form.Control name="minPrice" type="number" value={filters.minPrice} onChange={handleInputChange} placeholder="Min" />
+                <Form.Control name="maxPrice" type="number" value={filters.maxPrice} onChange={handleInputChange} placeholder="Max" />
+              </div>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Duration (Days)</Form.Label>
+              <Form.Control name="duration" type="number" value={filters.duration} onChange={handleInputChange} />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Start Date (After)</Form.Label>
+              <Form.Control name="startDate" type="date" value={filters.startDate} onChange={handleInputChange} />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Experience Type</Form.Label>
+              <Form.Select name="experience" value={filters.experience} onChange={handleInputChange}>
+                <option value="">Any Experience (All)</option>
+                <option value="RELAX">Relax</option>
+                <option value="ADVENTURE">Adventure</option>
+                <option value="CULTURAL">Cultural</option>
+                <option value="FAMILY">Family</option>
+                <option value="ROMANTIC">Romantic</option>
+                <option value="BUSINESS">Business</option>
+              </Form.Select>
+            </Form.Group>
+
+            <Button variant="primary" type="submit" className="w-100 mt-3">
+              Apply Filters
+            </Button>
+            <Button variant="outline-secondary" className="w-100 mt-2" onClick={() => window.location.reload()}>
+              Reset
+            </Button>
           </Form>
-        </Card.Body>
-      </Card>
-      {/* --- FIN DEL BUSCADOR --- */}
-      
-      {loading && <Spinner animation="border" variant="primary" />}
-      {error && <Alert variant="danger">{error}</Alert>}
-      
-      {!loading && !error && (
-        <Row xs={1} md={2} lg={3} className="g-4">
-          {bundles.map((bundle) => (
-            <Col key={bundle.idBundle}>
-              <BundleCard bundle={bundle} />
-            </Col>
-          ))}
-        </Row>
-      )}
-      
-      {!loading && bundles.length === 0 && !error && (
-        <Alert variant="info" className="mt-3">No packages found for these filters.</Alert>
-      )}
+        </Col>
+
+        {/* RESULTS COLUMN */}
+        <Col md={9} className="p-4">
+          <h2 className="mb-4">Available Packages</h2>
+          
+          {loading && <Spinner animation="border" variant="primary" />}
+          {error && <Alert variant="danger">{error}</Alert>}
+          
+          <Row xs={1} lg={2} xl={3} className="g-4">
+            {bundles.map(bundle => (
+              <Col key={bundle.idBundle}>
+                <BundleCard bundle={bundle} />
+              </Col>
+            ))}
+          </Row>
+
+          {!loading && bundles.length === 0 && (
+            <Alert variant="info" className="mt-4">No results found matching your criteria.</Alert>
+          )}
+        </Col>
+      </Row>
     </Container>
   );
 }

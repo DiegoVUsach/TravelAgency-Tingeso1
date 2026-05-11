@@ -52,7 +52,7 @@ public class BundleEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_experiencia_bundle", nullable = false)
-    private ExperienceType tipoExperienciaBundle;
+    private ExperienceTypeState tipoExperienciaBundle;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "state_bundle", nullable = false)

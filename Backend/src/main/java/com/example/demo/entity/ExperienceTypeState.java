@@ -1,8 +1,10 @@
 package com.example.demo.entity;
 
-public enum ExperienceType {
-    AVENTURA,
+public enum ExperienceTypeState {
     RELAX,
+    ADVENTURE,
     CULTURAL,
-    FAMILIAR
+    FAMILY,
+    ROMANTIC,
+    BUSINESS
 }

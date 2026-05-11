@@ -12,13 +12,17 @@ export const bundleService = {
     },
 
     // NUEVA FUNCIÓN: Envía los parámetros a tu backend
-    searchBundles: async (destiny, maxPrice) => {
+    searchAvailableBundles: async (filters) => {
         try {
-            // Axios arma automáticamente la URL: /bundle/search?destiny=X&maxPrice=Y
             const response = await api.get('/bundle/search', {
                 params: {
-                    destiny: destiny || null, // Si está vacío, envía null
-                    maxPrice: maxPrice || null
+                    destiny: filters.destiny || null,
+                    minPrice: filters.minPrice || null,
+                    maxPrice: filters.maxPrice || null,
+                    duration: filters.duration || null,
+                    startDate: filters.startDate || null,
+                    endDate: filters.endDate || null,
+                    experience: filters.experience || null 
                 }
             });
             return response.data;
