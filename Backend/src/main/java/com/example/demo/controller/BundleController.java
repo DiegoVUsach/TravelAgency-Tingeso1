@@ -34,6 +34,11 @@ public class BundleController {
         return bundleService.saveBundle(bundleEntity);
     }
 
+    @PutMapping("/{id}")
+    public BundleEntity updateBundle(@PathVariable Long id, @RequestBody BundleEntity bundleEntity) {
+        return bundleService.updateBundle(id, bundleEntity);
+    }
+
     // E3 method, for bundle search
     @GetMapping("/search")
     public ResponseEntity<List<BundleEntity>> searchBundles(

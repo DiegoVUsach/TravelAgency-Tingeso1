@@ -62,6 +62,9 @@ public class BundleService {
                 !bundleEntity.getStartDateBundle().isBefore(bundleEntity.getEndDateBundle())) {
             throw new IllegalArgumentException("The start date must be before the end date and not null.");
         }
+        if (bundleEntity.getTipoExperienciaBundle() == null) {
+            throw new IllegalArgumentException("The experience type must be specified.");
+        }
 
         int calculatedDuration = (int) ChronoUnit.DAYS.between(
                 bundleEntity.getStartDateBundle(),
@@ -100,6 +103,7 @@ public class BundleService {
         existingBundle.setNameBundle(newDetails.getNameBundle());
         existingBundle.setDestinyBundle(newDetails.getDestinyBundle());
         existingBundle.setDescBundle(newDetails.getDescBundle());
+        existingBundle.setTipoExperienciaBundle(newDetails.getTipoExperienciaBundle());
         existingBundle.setAvailableSlotsBundle(newDetails.getAvailableSlotsBundle());
         existingBundle.setStateBundle(newDetails.getStateBundle());
 
