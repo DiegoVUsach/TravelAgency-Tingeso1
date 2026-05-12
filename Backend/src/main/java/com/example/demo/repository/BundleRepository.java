@@ -22,6 +22,7 @@ public interface BundleRepository extends JpaRepository<BundleEntity,Long> {
     List<BundleEntity> findByDestinyBundleContainingIgnoreCase(String destiny);
 
     // tbd if the query is useful when front is implemented
+    // Reemplaza solo el método anotado @Query dentro de BundleRepository
     @Query("SELECT b FROM BundleEntity b WHERE " +
             "b.stateBundle = :state AND " +
             "b.availableSlotsBundle > 0 AND " +
@@ -32,7 +33,7 @@ public interface BundleRepository extends JpaRepository<BundleEntity,Long> {
             "(:duration IS NULL OR b.durationBundle = :duration) AND " +
             "(:startDate IS NULL OR b.startDateBundle >= :startDate) AND " +
             "(:endDate IS NULL OR b.endDateBundle <= :endDate) AND " +
-            "(:experience IS NULL OR b.experienceType = :experience)")
+            "(:experience IS NULL OR b.tipoExperienciaBundle = :experience)")
     List<BundleEntity> searchAvailableBundles(
             @Param("state") BundleState state,
             @Param("destiny") String destiny,
@@ -43,6 +44,7 @@ public interface BundleRepository extends JpaRepository<BundleEntity,Long> {
             @Param("endDate") LocalDate endDate,
             @Param("experience") ExperienceTypeState experience
     );
+
 
 }
 

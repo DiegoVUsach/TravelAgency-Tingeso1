@@ -3,6 +3,7 @@ package com.example.demo.service;
 
 import com.example.demo.entity.BundleEntity;
 import com.example.demo.entity.BundleState;
+import com.example.demo.entity.ExperienceTypeState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.demo.repository.BundleRepository;
@@ -37,7 +38,8 @@ public class BundleService {
             Integer maxPrice,
             Integer duration,
             LocalDate startDate,
-            LocalDate endDate) {
+            LocalDate endDate,
+            ExperienceTypeState experience) {
 
         return bundleRepository.searchAvailableBundles(
                 BundleState.AVAILABLE,
@@ -46,7 +48,8 @@ public class BundleService {
                 maxPrice,
                 duration,
                 startDate,
-                endDate
+                endDate,
+                experience
         );
     }
 

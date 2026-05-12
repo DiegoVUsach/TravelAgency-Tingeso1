@@ -11,7 +11,6 @@ export const bundleService = {
         }
     },
 
-    // NUEVA FUNCIÓN: Envía los parámetros a tu backend
     searchAvailableBundles: async (filters) => {
         try {
             const response = await api.get('/bundle/search', {

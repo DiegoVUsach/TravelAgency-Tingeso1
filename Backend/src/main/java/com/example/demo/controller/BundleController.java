@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.entity.ExperienceTypeState;
 import com.example.demo.service.BundleService;
 import com.example.demo.entity.BundleEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,10 +48,12 @@ public class BundleController {
             @RequestParam(required = false) Integer maxPrice,
             @RequestParam(required = false) Integer duration,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false)ExperienceTypeState experience)
+            {
 
         List<BundleEntity> results = bundleService.searchAvailableBundles(
-                destiny, minPrice, maxPrice, duration, startDate, endDate
+                destiny, minPrice, maxPrice, duration, startDate, endDate, experience
         );
 
         return ResponseEntity.ok(results);
