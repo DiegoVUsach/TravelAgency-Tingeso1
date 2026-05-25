@@ -37,7 +37,8 @@ public class ReservationService {
         UserEntity user = userService.getUserProfile(email);
         double globalDiscount = 0.0;
 
-        // Fetch dynamic configurations from the database (with default fallbacks), does not
+        // Fetch dynamic configurations from the database (with default fallbacks), does
+        // not
         int multiPackageThreshold = getConfigThreshold("MULTIPLE_PACKAGES", 2);
         double multiPackageDiscount = getConfigValue("MULTIPLE_PACKAGES", 0.05);
 
@@ -123,17 +124,19 @@ public class ReservationService {
         return response;
     }
 
-    @Scheduled(fixedRate = 3600000) //every 1 hr
+    @Scheduled(fixedRate = 3600000) // every 1 hr
     @Transactional
     public void cancelExpiredReservations() {
 
         LocalDate expirationDate = LocalDate.now();
 
-        // looks up every reservation that is still pending payment and was created before the expiration date
+        // looks up every reservation that is still pending payment and was created
+        // before the expiration date
         List<ReservationEntity> expiredReservations = reservationRepository
                 .findByStateAndReservationDateBefore(ReservationState.PENDING_PAYMENT, expirationDate);
 
-        // iterates through the expired reservations, changes their state to canceled, and returns the reserved slots back to the corresponding bundle
+        // iterates through the expired reservations, changes their state to canceled,
+        // and returns the reserved slots back to the corresponding bundle
         for (ReservationEntity reservation : expiredReservations) {
 
             reservation.setState(ReservationState.CANCELED);
@@ -145,11 +148,12 @@ public class ReservationService {
             bundleRepository.save(bundle);
             reservationRepository.save(reservation);
 
-            System.out.println("Reserva ID " + reservation.getId() + " expirada. Cupos devueltos al paquete " + bundle.getIdBundle());
+            System.out.println("Reserva ID " + reservation.getId() + " expirada. Cupos devueltos al paquete "
+                    + bundle.getIdBundle());
         }
     }
 
-   // maybe create one for oldest first
+    // maybe create one for oldest first
     public List<ReservationEntity> getUserReservations(String email) {
         return reservationRepository.findByUser_EmailOrderByReservationDateDesc(email);
     }
@@ -159,7 +163,9 @@ public class ReservationService {
         return reservationRepository.findAll();
     }
 
-    // Update reservation state, for example, to cancel manually or to confirm after payment. This method can be used by admins or by the system (for example, to cancel expired reservations)
+    // Update reservation state, for example, to cancel manually or to confirm after
+    // payment. This method can be used by admins or by the system (for example, to
+    // cancel expired reservations)
     @Transactional
     public ReservationEntity updateReservationState(Long id, ReservationState newState) {
         ReservationEntity reservation = reservationRepository.findById(id)
@@ -172,11 +178,8 @@ public class ReservationService {
         // tbd more mod rules, check if i have the time for it
         reservation.setState(newState);
 
-
-
         return reservationRepository.save(reservation);
     }
-
 
     // e6, receipt
 
@@ -185,18 +188,17 @@ public class ReservationService {
         ReservationEntity reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada con ID: " + reservationId));
 
-
         if (reservation.getState() != ReservationState.CONFIRMED) {
-            throw new IllegalStateException("Error: No se puede emitir un comprobante. La reserva se encuentra en estado: " + reservation.getState());
+            throw new IllegalStateException(
+                    "Error: No se puede emitir un comprobante. La reserva se encuentra en estado: "
+                            + reservation.getState());
         }
-
 
         ReservationReceiptDTO receipt = new ReservationReceiptDTO();
         // receipt id - year
         receipt.setReceiptCode("REC-" + reservation.getId() + "-" + reservation.getReservationDate().getYear());
         receipt.setIssueDate(LocalDate.now());
         receipt.setClientEmail(reservation.getUser().getEmail());
-
 
         receipt.setBundleName(reservation.getBundle().getNameBundle());
         receipt.setDestination(reservation.getBundle().getDestinyBundle()); // look at this point later
@@ -208,24 +210,27 @@ public class ReservationService {
         return receipt;
     }
 
-
     // e7
     public List<ReservationEntity> getSalesByPeriod(LocalDate startDate, LocalDate endDate) {
         if (startDate.isAfter(endDate)) {
             throw new IllegalArgumentException("Start date cannot be after end date");
         }
 
-        // does not include canceled sales, as they do not generate revenue and are not relevant for this report
+        // does not include canceled sales, as they do not generate revenue and are not
+        // relevant for this report
         return reservationRepository.findSalesByDateRange(
                 startDate,
                 endDate,
-                ReservationState.CANCELED
-        );
+                ReservationState.CANCELED);
     }
 
-    // e7, best selling packages ranking, does not include canceled reservations, same as above
-    public List<PackageRankingDTO> getPackageRanking() {
-        return reservationRepository.findPackageRanking(ReservationState.CANCELED);
+    // e7, best selling packages ranking with date range, does not include canceled
+    // reservations, maybe this will make problems
+    public List<PackageRankingDTO> getPackageRanking(LocalDate startDate, LocalDate endDate) {
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("Start date cannot be after end date");
+        }
+        return reservationRepository.findPackageRanking(ReservationState.CANCELED, startDate, endDate);
     }
 
     // aux methods

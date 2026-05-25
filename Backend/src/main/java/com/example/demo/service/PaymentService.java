@@ -19,7 +19,7 @@ public class PaymentService {
     private final ReservationRepository reservationRepository;
 
     @Transactional
-    public String processPayment(Long reservationId, Integer amount, String method) {
+    public String processPayment(Long reservationId, Integer amount, String method, String callerEmail) {
 
         // does the reservation exist
         ReservationEntity reservation = reservationRepository.findById(reservationId)
@@ -28,6 +28,11 @@ public class PaymentService {
 
         if (reservation.getState() == ReservationState.CANCELED) {
             throw new IllegalStateException("Cannot pay for a canceled reservation.");
+        }
+
+        // Verify that the caller is the owner of the reservation
+        if (!reservation.getUser().getEmail().equals(callerEmail)) {
+            throw new IllegalStateException("No puedes pagar una reserva que no te pertenece.");
         }
 
         // checks if it has already been paid

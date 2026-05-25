@@ -93,13 +93,15 @@ public class ReservationController {
     }
 
     /**
-     * Reporte 2: Ranking de Paquetes Vendidos
-     * GET /api/v1/reservations/reports/ranking
+     * Reporte 2: Ranking de Paquetes Vendidos por Período
+     * GET /api/v1/reservations/reports/ranking?startDate=2026-01-01&endDate=2026-12-31
      */
     @GetMapping("/reports/ranking")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<List<PackageRankingDTO>> getPackageRanking() {
-        List<PackageRankingDTO> ranking = reservationService.getPackageRanking();
+    public ResponseEntity<List<PackageRankingDTO>> getPackageRanking(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        List<PackageRankingDTO> ranking = reservationService.getPackageRanking(startDate, endDate);
         return ResponseEntity.ok(ranking);
     }
 }

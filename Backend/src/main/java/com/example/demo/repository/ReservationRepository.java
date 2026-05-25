@@ -32,16 +32,21 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
     // for timeout of bundles
     List<ReservationEntity> findByStateAndReservationDateBefore(ReservationState state, LocalDate date);
 
-    // e7, bundle ranking
+    // e7, bundle ranking with date range filter
     @Query("SELECT r.bundle.idBundle AS bundleId, r.bundle.nameBundle AS bundleName, " +
             "COUNT(r) AS totalReservations, " +
             "SUM(r.numberOfPassengers) AS totalPassengers, " +
             "SUM(r.totalAmount) AS totalRevenue " +
             "FROM ReservationEntity r " +
             "WHERE r.state <> :canceledState " +
+            "AND r.reservationDate >= :startDate " +
+            "AND r.reservationDate <= :endDate " +
             "GROUP BY r.bundle.idBundle, r.bundle.nameBundle " +
             "ORDER BY totalReservations DESC")
-    List<PackageRankingDTO> findPackageRanking(@Param("canceledState") ReservationState canceledState);
+    List<PackageRankingDTO> findPackageRanking(
+            @Param("canceledState") ReservationState canceledState,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
 
     // e7
     @Query("SELECT r FROM ReservationEntity r " +

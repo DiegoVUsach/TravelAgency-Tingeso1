@@ -32,8 +32,16 @@ public class BundleController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public BundleEntity saveBundle(@RequestBody BundleEntity bundleEntity) {
         return bundleService.saveBundle(bundleEntity);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<Void> deleteBundle(@PathVariable Long id) {
+        bundleService.deleteBundle(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
