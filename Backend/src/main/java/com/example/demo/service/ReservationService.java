@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.*;
 import com.example.demo.entity.BundleEntity;
+import com.example.demo.entity.BundleState;
 import com.example.demo.entity.ReservationEntity;
 import com.example.demo.entity.ReservationState;
 import com.example.demo.repository.BundleRepository;
@@ -73,14 +74,41 @@ public class ReservationService {
             BundleEntity bundle = bundleRepository.findById(item.getBundleId())
                     .orElseThrow(() -> new RuntimeException("Bundle not found with ID: " + item.getBundleId()));
 
+            // Validate bundle state - cannot be canceled, expired, or sold out
+            if (bundle.getStateBundle() == BundleState.CANCELED) {
+                throw new IllegalStateException("Cannot reserve a canceled bundle: " + bundle.getNameBundle());
+            }
+            if (bundle.getStateBundle() == BundleState.EXPIRED) {
+                throw new IllegalStateException("Cannot reserve an expired bundle: " + bundle.getNameBundle());
+            }
+            if (bundle.getStateBundle() == BundleState.SOLD_OUT) {
+                throw new IllegalStateException("Bundle is sold out: " + bundle.getNameBundle());
+            }
+
+            // Validate bundle is within valid date range
+            LocalDate today = LocalDate.now();
+            if (today.isBefore(bundle.getStartDateBundle()) || today.isAfter(bundle.getEndDateBundle())) {
+                throw new IllegalStateException("Bundle is not active during this date: " + bundle.getNameBundle());
+            }
+
             if (bundle.getAvailableSlotsBundle() < item.getPassengers()) {
                 throw new IllegalStateException("Not enough available slots for bundle: " + bundle.getNameBundle());
             }
 
-            // Discount 3: Volume discount per item
+            // Inherit global discount (multiple packages + frequent client)
             double itemDiscount = globalDiscount;
+
+            // Discount 3: Volume discount per item
             if (item.getPassengers() >= volumeThreshold) {
                 itemDiscount += volumeDiscount;
+            }
+
+            // Discount 4: Temporal discounts
+            if (bundle.getPromoStartDate() != null && bundle.getPromoEndDate() != null) {
+                boolean isPromoActive = !today.isBefore(bundle.getPromoStartDate()) && !today.isAfter(bundle.getPromoEndDate());
+                if (isPromoActive) {
+                    itemDiscount += bundle.getPromoDiscountPercent();
+                }
             }
 
             // Set max discount limit dynamically
@@ -91,6 +119,9 @@ public class ReservationService {
             // Calculations
             int basePrice = bundle.getPriceBundle() * item.getPassengers();
             int finalPrice = (int) (basePrice * (1.0 - itemDiscount));
+
+            // final price cannot be negative
+            finalPrice = Math.max(0, finalPrice);
 
             cartSubtotal += basePrice;
             cartFinalTotal += finalPrice;
@@ -104,7 +135,7 @@ public class ReservationService {
             newReservation.setUser(user);
             newReservation.setBundle(bundle);
             newReservation.setNumberOfPassengers(item.getPassengers());
-            newReservation.setReservationDate(LocalDate.now());
+            newReservation.setReservationDate(today);
             newReservation.setTotalAmount(finalPrice);
             newReservation.setState(ReservationState.PENDING_PAYMENT);
 
@@ -127,7 +158,8 @@ public class ReservationService {
     @Transactional
     public void cancelExpiredReservations() {
 
-        LocalDate expirationDate = LocalDate.now();
+        // Reservations expire 1 day after creation if still in PENDING_PAYMENT state
+        LocalDate expirationDate = LocalDate.now().minusDays(1);
 
         // looks up every reservation that is still pending payment and was created
         // before the expiration date
@@ -147,7 +179,7 @@ public class ReservationService {
             bundleRepository.save(bundle);
             reservationRepository.save(reservation);
 
-            System.out.println("Reserva ID " + reservation.getId() + " expirada. Cupos devueltos al paquete "
+            System.out.println("Reservation ID " + reservation.getId() + " expired. Slots returned to bundle "
                     + bundle.getIdBundle());
         }
     }
@@ -168,13 +200,13 @@ public class ReservationService {
     @Transactional
     public ReservationEntity updateReservationState(Long id, ReservationState newState) {
         ReservationEntity reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Reserva no encontrada con ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Reservation not found with ID: " + id));
 
         if (reservation.getState() == ReservationState.CANCELED && newState == ReservationState.CONFIRMED) {
-            throw new IllegalStateException("Una reserva cancelada no puede ser confirmada. El sistema la bloquea.");
+            throw new IllegalStateException("A canceled reservation cannot be confirmed. The system blocks this action.");
         }
 
-        // tbd more mod rules, check if i have the time for it
+        // TODO: add more business rules if time permits
         reservation.setState(newState);
 
         return reservationRepository.save(reservation);
@@ -185,11 +217,11 @@ public class ReservationService {
     public ReservationReceiptDTO generateReceipt(Long reservationId) {
 
         ReservationEntity reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("Reserva no encontrada con ID: " + reservationId));
+                .orElseThrow(() -> new RuntimeException("Reservation not found with ID: " + reservationId));
 
         if (reservation.getState() != ReservationState.CONFIRMED) {
             throw new IllegalStateException(
-                    "Error: No se puede emitir un comprobante. La reserva se encuentra en estado: "
+                    "Error: Cannot issue a receipt. The reservation is in state: "
                             + reservation.getState());
         }
 
