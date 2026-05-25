@@ -28,6 +28,9 @@ E6
 E7
 
 # Keycloak
+keycloak url: http://localhost:9090
+realm name: travelagency-realm
+client id: travelagency-frontend
 
 
 # Versionamiento y Continuous Delivery (CI/CD)
@@ -36,7 +39,10 @@ E7
 - Pipeline de Continuous Delivery (Entrega Continua) - docker, github actions, etc
 - Despliegue en Producción (Nube)
 
-
+--------------------------------------------------------------------------------------
+agregar esto a los metodos de controllers para security
+@PreAuthorize("hasAnyRole('USER','ADMIN')") para lo de keycloak
+como hcaer lo
 
 e4 falta, manejar 2+ paq/revisar
 

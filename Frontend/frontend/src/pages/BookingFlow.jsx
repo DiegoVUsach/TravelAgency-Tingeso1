@@ -1,0 +1,234 @@
+import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Form, Button, Card, Spinner, Alert, ProgressBar } from 'react-bootstrap';
+import { useParams, useNavigate } from 'react-router-dom';
+import { bundleService } from '../services/bundleService';
+import { reservationService } from '../services/reservationService';
+import { useUser } from '../context/UserContext';
+
+function BookingFlow() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { role } = useUser();
+  
+  const [bundle, setBundle] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  const [step, setStep] = useState(1);
+  const [passengers, setPassengers] = useState(1);
+  const [specialRequests, setSpecialRequests] = useState('');
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    bundleService.getBundleById(id)
+      .then(data => {
+        setBundle(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError('Could not fetch package details.');
+        setLoading(false);
+      });
+  }, [id]);
+
+  // If not logged in (mocking with role check)
+  if (role === 'GUEST') {
+    return (
+      <Container className="my-5 text-center py-5 glass-panel">
+        <h3 className="mb-4 text-primary">Authentication Required</h3>
+        <p className="text-muted mb-4">You must be logged in as a Client to make a reservation.</p>
+        <Alert variant="info" className="d-inline-block">Please use the 'Mock Auth' dropdown in the Navbar to switch to 'Client'.</Alert>
+      </Container>
+    );
+  }
+
+  if (loading) return <Container className="text-center my-5 py-5"><Spinner animation="border" variant="primary" /></Container>;
+  if (error || !bundle) return <Container className="my-5"><Alert variant="danger">{error || "Package not found"}</Alert></Container>;
+
+  // Business Rules for Pricing
+  const basePrice = bundle.priceBundle * passengers;
+  const groupDiscountPercentage = passengers >= 4 ? 0.10 : 0; // 10% discount for >= 4 people
+  const groupDiscountAmount = basePrice * groupDiscountPercentage;
+  
+  // Mocking frequent client discount (e.g. 5%)
+  const isFrequentClient = true; // In a real app, check user profile
+  const frequentDiscountPercentage = isFrequentClient ? 0.05 : 0;
+  const frequentDiscountAmount = basePrice * frequentDiscountPercentage;
+
+  const totalDiscount = groupDiscountAmount + frequentDiscountAmount;
+  const finalPrice = Math.max(0, basePrice - totalDiscount);
+
+  const handleNextStep = () => {
+    if (step === 1 && (passengers < 1 || passengers > bundle.amountBundle)) {
+      alert(`Please select between 1 and ${bundle.amountBundle} passengers.`);
+      return;
+    }
+    setStep(step + 1);
+  };
+
+  const handleConfirmReservation = () => {
+    setIsSubmitting(true);
+    
+    // Construct payload based on expected backend structure
+    const reservationData = {
+      idBundle: bundle.idBundle,
+      amountPassengers: passengers,
+      totalPrice: finalPrice,
+      // idClient: 1, // Mocked client ID, omitted or mocked based on backend needs
+      stateReservation: 'PENDING_PAYMENT',
+      specialRequests: specialRequests
+    };
+
+    reservationService.createReservation(reservationData)
+      .then(() => {
+        setIsSubmitting(false);
+        setSuccess(true);
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Failed to create reservation. Please try again.');
+        setIsSubmitting(false);
+      });
+  };
+
+  if (success) {
+    return (
+      <Container className="my-5 text-center animate-fade-up">
+        <div className="glass-panel p-5 d-inline-block">
+          <div className="mb-4" style={{ fontSize: '4rem' }}>✅</div>
+          <h2 className="text-success mb-3">Reservation Confirmed!</h2>
+          <p className="text-muted mb-4">Your reservation for <strong>{bundle.nameBundle}</strong> has been successfully created.</p>
+          <Button className="btn-premium" onClick={() => navigate('/my-reservations')}>
+            View My Reservations
+          </Button>
+        </div>
+      </Container>
+    );
+  }
+
+  return (
+    <Container className="my-5 max-w-md animate-fade-up" style={{ maxWidth: '800px' }}>
+      <Button variant="link" className="text-muted ps-0 mb-4 text-decoration-none" onClick={() => navigate(-1)}>
+        ← Back to Details
+      </Button>
+
+      <div className="mb-5">
+        <h2 className="mb-3">Booking: {bundle.nameBundle}</h2>
+        <ProgressBar now={(step / 2) * 100} className="mb-2" style={{ height: '8px' }} />
+        <div className="d-flex justify-content-between text-muted small fw-bold text-uppercase">
+          <span>Step 1: Details</span>
+          <span>Step 2: Summary</span>
+        </div>
+      </div>
+
+      <Row>
+        <Col md={8}>
+          <div className="glass-panel p-4 mb-4">
+            {step === 1 && (
+              <div className="animate-fade-up">
+                <h4 className="mb-4">Traveler Information</h4>
+                
+                <Form.Group className="mb-4">
+                  <Form.Label className="fw-bold">Number of Passengers</Form.Label>
+                  <div className="d-flex align-items-center gap-3">
+                    <Button variant="outline-primary" className="rounded-circle" style={{ width: '40px', height: '40px' }}
+                      onClick={() => setPassengers(Math.max(1, passengers - 1))} disabled={passengers <= 1}>-</Button>
+                    <span className="fs-4 fw-bold">{passengers}</span>
+                    <Button variant="outline-primary" className="rounded-circle" style={{ width: '40px', height: '40px' }}
+                      onClick={() => setPassengers(Math.min(bundle.amountBundle, passengers + 1))} disabled={passengers >= bundle.amountBundle}>+</Button>
+                  </div>
+                  <Form.Text className="text-muted">
+                    Available spots: {bundle.amountBundle}
+                  </Form.Text>
+                </Form.Group>
+
+                <Form.Group className="mb-4">
+                  <Form.Label className="fw-bold">Special Requests (Optional)</Form.Label>
+                  <Form.Control 
+                    as="textarea" 
+                    rows={3} 
+                    className="premium-input"
+                    value={specialRequests}
+                    onChange={(e) => setSpecialRequests(e.target.value)}
+                    placeholder="E.g., dietary restrictions, accessibility needs..."
+                  />
+                </Form.Group>
+
+                <Button className="btn-premium w-100" onClick={handleNextStep}>
+                  Continue to Summary
+                </Button>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="animate-fade-up">
+                <h4 className="mb-4">Review Your Booking</h4>
+                <Alert variant="info" className="border-0 bg-light">
+                  <h6 className="mb-2 text-uppercase fw-bold text-primary">Important Information</h6>
+                  <ul className="mb-0 small text-muted">
+                    <li>By confirming, you agree to the terms and conditions.</li>
+                    <li>This reservation will be marked as "Pending Payment".</li>
+                    <li>Please complete payment within 48 hours to secure your spots.</li>
+                  </ul>
+                </Alert>
+
+                <div className="mt-4">
+                  <Button className="btn-secondary me-3" onClick={() => setStep(1)} disabled={isSubmitting}>
+                    Go Back
+                  </Button>
+                  <Button className="btn-premium" onClick={handleConfirmReservation} disabled={isSubmitting}>
+                    {isSubmitting ? <><Spinner size="sm" className="me-2"/> Processing...</> : 'Confirm Reservation'}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </Col>
+
+        <Col md={4}>
+          <div className="filter-sidebar p-4 border border-light">
+            <h5 className="mb-4 border-bottom pb-3">Order Summary</h5>
+            
+            <div className="mb-3">
+              <span className="text-muted small d-block">Package</span>
+              <span className="fw-bold">{bundle.nameBundle}</span>
+            </div>
+            
+            <div className="mb-3 border-bottom pb-3">
+              <span className="text-muted small d-block">Passengers</span>
+              <span className="fw-bold">{passengers} Person(s)</span>
+            </div>
+
+            <div className="d-flex justify-content-between mb-2 text-muted">
+              <span>Base Price ({passengers}x)</span>
+              <span>${basePrice.toLocaleString()}</span>
+            </div>
+
+            {groupDiscountAmount > 0 && (
+              <div className="d-flex justify-content-between mb-2 text-success small">
+                <span>Group Discount (10%)</span>
+                <span>-${groupDiscountAmount.toLocaleString()}</span>
+              </div>
+            )}
+
+            {frequentDiscountAmount > 0 && (
+              <div className="d-flex justify-content-between mb-3 text-success small border-bottom pb-3">
+                <span>Frequent Client (5%)</span>
+                <span>-${frequentDiscountAmount.toLocaleString()}</span>
+              </div>
+            )}
+
+            <div className="d-flex justify-content-between mt-3 pt-2">
+              <span className="fw-bold text-uppercase">Total Due</span>
+              <span className="fw-bold fs-4 text-primary">${finalPrice.toLocaleString()}</span>
+            </div>
+          </div>
+        </Col>
+      </Row>
+    </Container>
+  );
+}
+
+export default BookingFlow;

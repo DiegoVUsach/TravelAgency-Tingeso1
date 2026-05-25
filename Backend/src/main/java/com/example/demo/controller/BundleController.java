@@ -6,6 +6,7 @@ import com.example.demo.entity.BundleEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -35,6 +36,7 @@ public class BundleController {
         return bundleService.saveBundle(bundleEntity);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping("/{id}")
     public BundleEntity updateBundle(@PathVariable Long id, @RequestBody BundleEntity bundleEntity) {
         return bundleService.updateBundle(id, bundleEntity);
