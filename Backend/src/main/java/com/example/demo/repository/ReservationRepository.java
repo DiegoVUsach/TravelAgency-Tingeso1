@@ -20,10 +20,13 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
     long countByBundleIdBundle(Long idBundle);
 
     // counts how  many reservations a user has in a certain state, for example, how many pending payments a user has
-    long countByUserEmailAndState(String userEmail, ReservationState state);
+    long countByUser_EmailAndState(String userEmail, ReservationState state);
 
 
-    List<ReservationEntity> findByUserEmailOrderByReservationDateDesc(String userEmail);
+    List<ReservationEntity> findByUser_EmailOrderByReservationDateDesc(String userEmail);
+
+    // check if a user has any reservations
+    boolean existsByUser_Email(String userEmail);
 
 
     // for timeout of bundles

@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -27,23 +30,29 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @PostMapping("/cart")
-    public ResponseEntity<ReservationResponseDTO> createMultipleReservations(@RequestBody ReservationRequestDTO request) {
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<ReservationResponseDTO> createMultipleReservations(
+            @AuthenticationPrincipal Jwt jwt, 
+            @RequestBody ReservationRequestDTO request) {
 
-        ReservationResponseDTO response = reservationService.processCartReservations(request);
+        String email = jwt.getClaimAsString("email");
+        ReservationResponseDTO response = reservationService.processCartReservations(request, email);
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
 
     // E6
-    // MUST IMPLEMENT KEYCLOAK HERE INSTEAD OF STR MAIL
     @GetMapping("/my-reservations")
-    public ResponseEntity<List<ReservationEntity>> getMyReservations(@RequestParam String email) {
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<List<ReservationEntity>> getMyReservations(@AuthenticationPrincipal Jwt jwt) {
+        String email = jwt.getClaimAsString("email");
         List<ReservationEntity> reservations = reservationService.getUserReservations(email);
         return ResponseEntity.ok(reservations);
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<List<ReservationEntity>> getAllReservations() {
         List<ReservationEntity> reservations = reservationService.getAllReservations();
         return ResponseEntity.ok(reservations);
@@ -51,6 +60,7 @@ public class ReservationController {
 
     // change the state of a reservation
     @PatchMapping("/{id}/state")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<ReservationEntity> updateReservationState(
             @PathVariable Long id,
             @RequestParam ReservationState newState) {
@@ -61,6 +71,7 @@ public class ReservationController {
 
     // E6
     @GetMapping("/{id}/receipt")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<ReservationReceiptDTO> getReservationReceipt(@PathVariable Long id) {
         ReservationReceiptDTO receipt = reservationService.generateReceipt(id);
         return ResponseEntity.ok(receipt);
@@ -72,6 +83,7 @@ public class ReservationController {
      * GET /api/v1/reservations/reports/sales?startDate=2026-01-01&endDate=2026-12-31
      */
     @GetMapping("/reports/sales")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<List<ReservationEntity>> getSalesReport(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
@@ -85,6 +97,7 @@ public class ReservationController {
      * GET /api/v1/reservations/reports/ranking
      */
     @GetMapping("/reports/ranking")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<List<PackageRankingDTO>> getPackageRanking() {
         List<PackageRankingDTO> ranking = reservationService.getPackageRanking();
         return ResponseEntity.ok(ranking);

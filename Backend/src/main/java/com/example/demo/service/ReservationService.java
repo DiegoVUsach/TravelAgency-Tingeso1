@@ -8,6 +8,7 @@ import com.example.demo.repository.BundleRepository;
 import com.example.demo.repository.DiscountConfigRepository;
 import com.example.demo.repository.ReservationRepository;
 import com.example.demo.entity.DiscountConfigEntity;
+import com.example.demo.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,15 +25,16 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final BundleRepository bundleRepository;
     private final DiscountConfigRepository discountConfigRepository;
+    private final UserService userService;
 
     @Transactional
-    public ReservationResponseDTO processCartReservations(ReservationRequestDTO request) {
+    public ReservationResponseDTO processCartReservations(ReservationRequestDTO request, String email) {
 
         if (request.getItems() == null || request.getItems().isEmpty()) {
             throw new IllegalArgumentException("The cart cannot be empty.");
         }
 
-        String email = request.getUserEmail();
+        UserEntity user = userService.getUserProfile(email);
         double globalDiscount = 0.0;
 
         // Fetch dynamic configurations from the database (with default fallbacks), does not
@@ -53,7 +55,7 @@ public class ReservationService {
         }
 
         // Discount 2: Frequent Client
-        long paidReservations = reservationRepository.countByUserEmailAndState(email, ReservationState.CONFIRMED);
+        long paidReservations = reservationRepository.countByUser_EmailAndState(email, ReservationState.CONFIRMED);
         if (paidReservations >= frequentClientThreshold) {
             globalDiscount += frequentClientDiscount;
         }
@@ -99,7 +101,7 @@ public class ReservationService {
 
             // Create and save Reservation
             ReservationEntity newReservation = new ReservationEntity();
-            newReservation.setUserEmail(email);
+            newReservation.setUser(user);
             newReservation.setBundle(bundle);
             newReservation.setNumberOfPassengers(item.getPassengers());
             newReservation.setReservationDate(LocalDate.now());
@@ -149,7 +151,7 @@ public class ReservationService {
 
    // maybe create one for oldest first
     public List<ReservationEntity> getUserReservations(String email) {
-        return reservationRepository.findByUserEmailOrderByReservationDateDesc(email);
+        return reservationRepository.findByUser_EmailOrderByReservationDateDesc(email);
     }
 
     // E6
@@ -193,7 +195,7 @@ public class ReservationService {
         // receipt id - year
         receipt.setReceiptCode("REC-" + reservation.getId() + "-" + reservation.getReservationDate().getYear());
         receipt.setIssueDate(LocalDate.now());
-        receipt.setClientEmail(reservation.getUserEmail());
+        receipt.setClientEmail(reservation.getUser().getEmail());
 
 
         receipt.setBundleName(reservation.getBundle().getNameBundle());

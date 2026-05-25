@@ -3,7 +3,6 @@ package com.example.demo.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-
 @Entity
 @Table(name = "users")
 @Data
@@ -15,9 +14,16 @@ public class UserEntity {
     @Column(unique = true)
     private String keycloakId;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
-    // phone-number tba
+
+    private String fullName;
+    private String phone;
+    private String identityDocument; //maybe add unique later
+    private String nationality;
+
+    @Column(nullable = false)
+    private boolean active = true;
 
 }
