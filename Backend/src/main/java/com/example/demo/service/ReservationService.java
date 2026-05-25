@@ -37,8 +37,7 @@ public class ReservationService {
         UserEntity user = userService.getUserProfile(email);
         double globalDiscount = 0.0;
 
-        // Fetch dynamic configurations from the database (with default fallbacks), does
-        // not
+        // Fetch dynamic configurations from the database
         int multiPackageThreshold = getConfigThreshold("MULTIPLE_PACKAGES", 2);
         double multiPackageDiscount = getConfigValue("MULTIPLE_PACKAGES", 0.05);
 

@@ -61,5 +61,13 @@ public class BundleEntity {
     @Column(name = "can_be_modified", nullable = false) //modify this, it has 2 tiers of modification, for it to be deleted at all and the other for modifying the bundle
     private boolean canBeModified; // to do: add restrictions for modification (it cannot be modified if it already has a reservation, according to the business rules)
 
-    //category, to add later for ease of filtering bundles
+    // for promotions
+    @Column(nullable = true)
+    private LocalDate promoStartDate;
+
+    @Column(nullable = true)
+    private LocalDate promoEndDate;
+
+    @Column(nullable = true)
+    private Double promoDiscountPercent; // ex: 0.10 for 10% dsct.
 }
