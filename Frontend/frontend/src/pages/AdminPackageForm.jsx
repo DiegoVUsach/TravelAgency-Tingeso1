@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Container, Form, Button, Row, Col, Spinner, Alert } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import { bundleService } from '../services/bundleService';
-import { useUser } from '../context/UserContext';
+import { useAuth } from '../context/AuthProvider';
 
 function AdminPackageForm() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { role } = useUser();
+  const { role } = useAuth();
   const isEditMode = !!id;
 
   const [formData, setFormData] = useState({

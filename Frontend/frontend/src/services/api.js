@@ -8,4 +8,17 @@ const api = axios.create({
     }
 });
 
+import keycloak from './keycloak';
+
+// Interceptor to add Keycloak token dynamically
+api.interceptors.request.use(
+    (config) => {
+        if (keycloak.token) {
+            config.headers.Authorization = `Bearer ${keycloak.token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
 export default api;

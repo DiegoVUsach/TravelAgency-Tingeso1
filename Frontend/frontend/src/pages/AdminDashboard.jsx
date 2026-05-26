@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Container, Table, Button, Spinner, Alert, Badge } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { bundleService } from '../services/bundleService';
-import { useUser } from '../context/UserContext';
+import { useAuth } from '../context/AuthProvider';
 
 function AdminDashboard() {
   const [bundles, setBundles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const { role } = useUser();
+  const { role } = useAuth();
 
   useEffect(() => {
     fetchBundles();

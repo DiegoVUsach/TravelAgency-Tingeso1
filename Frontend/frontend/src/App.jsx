@@ -1,37 +1,86 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthProvider';
 
-// We will create these components in the next steps
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
-// import Catalog from './pages/Catalog';
-// import Booking from './pages/Booking';
-// import Payment from './pages/Payment';
-// import MyReservations from './pages/MyReservations';
-// import AdminDashboard from './pages/AdminDashboard';
+import BookingFlow from './pages/BookingFlow';
+import Payment from './pages/Payment';
+import MyReservations from './pages/MyReservations';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminPackageForm from './pages/AdminPackageForm';
+import PackageDetails from './pages/PackageDetails';
+import AdminReports from './pages/AdminReports';
+
+const ProtectedRoute = ({ children, requiredRole }) => {
+  const { isAuthenticated, hasRole } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/" />;
+  }
+
+  if (requiredRole && !hasRole(requiredRole)) {
+    return <Navigate to="/" />;
+  }
+
+  return children;
+};
 
 function App() {
   return (
-    <Router>
-      {/* Navbar goes outside Routes so it shows on every page */}
-      {/* <Navbar /> */}
-      
-      <div className="main-content">
-        <Routes>
-          {/* Public and Client Routes */}
-          { <Route path="/" element={<Home />} /> }
-          {/* <Route path="/catalog" element={<Catalog />} /> */} {/* Epic 3: Search */}
-          {/* <Route path="/booking/:packageId" element={<Booking />} /> */} {/* Epic 4: Booking */}
-          {/* <Route path="/payment/:reservationId" element={<Payment />} /> */} {/* Epic 5: Payment */}
-          {/* <Route path="/my-reservations" element={<MyReservations />} /> */} {/* Epic 6: Client View */}
+    <AuthProvider>
+      <Router>
+        <Navbar />
+        <div className="main-content">
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/package/:id" element={<PackageDetails />} />
+            
+            {/* Client Routes */}
+            <Route path="/book/:id" element={
+              <ProtectedRoute requiredRole="USER">
+                <BookingFlow />
+              </ProtectedRoute>
+            } />
+            <Route path="/payment/:reservationId" element={
+              <ProtectedRoute requiredRole="USER">
+                <Payment />
+              </ProtectedRoute>
+            } />
+            <Route path="/my-reservations" element={
+              <ProtectedRoute requiredRole="USER">
+                <MyReservations />
+              </ProtectedRoute>
+            } />
 
-          {/* Admin / Agency Routes */}
-          {/* <Route path="/admin/dashboard" element={<AdminDashboard />} /> */} {/* Epic 2 & 7: Admin & Reports */}
+            {/* Admin Routes */}
+            <Route path="/admin/dashboard" element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/package/new" element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <AdminPackageForm />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/package/edit/:id" element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <AdminPackageForm />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/reports" element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <AdminReports />
+              </ProtectedRoute>
+            } />
 
-          {/* Fallback Route for 404 Not Found */}
-          <Route path="*" element={<h2>404 - Page Not Found</h2>} />
-        </Routes>
-      </div>
-    </Router>
+            {/* Fallback Route */}
+            <Route path="*" element={<h2>404 - Page Not Found</h2>} />
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 

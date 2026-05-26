@@ -3,12 +3,12 @@ import { Container, Row, Col, Form, Button, Card, Spinner, Alert, ProgressBar } 
 import { useParams, useNavigate } from 'react-router-dom';
 import { bundleService } from '../services/bundleService';
 import { reservationService } from '../services/reservationService';
-import { useUser } from '../context/UserContext';
+import { useAuth } from '../context/AuthProvider';
 
 function BookingFlow() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { role } = useUser();
+  const { role } = useAuth();
   
   const [bundle, setBundle] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -73,18 +73,22 @@ function BookingFlow() {
     
     // Construct payload based on expected backend structure
     const reservationData = {
-      idBundle: bundle.idBundle,
-      amountPassengers: passengers,
-      totalPrice: finalPrice,
-      // idClient: 1, // Mocked client ID, omitted or mocked based on backend needs
-      stateReservation: 'PENDING_PAYMENT',
-      specialRequests: specialRequests
+      items: [
+        {
+          bundleId: bundle.idBundle,
+          passengers: passengers
+        }
+      ]
     };
 
     reservationService.createReservation(reservationData)
-      .then(() => {
+      .then((data) => {
         setIsSubmitting(false);
-        setSuccess(true);
+        if (data && data.generatedReservationIds && data.generatedReservationIds.length > 0) {
+          navigate(`/payment/${data.generatedReservationIds[0]}`, { state: { amount: finalPrice, bundleName: bundle.nameBundle } });
+        } else {
+          setSuccess(true);
+        }
       })
       .catch(err => {
         console.error(err);
