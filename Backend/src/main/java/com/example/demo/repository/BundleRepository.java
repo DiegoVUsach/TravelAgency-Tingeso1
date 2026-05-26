@@ -21,8 +21,8 @@ public interface BundleRepository extends JpaRepository<BundleEntity,Long> {
 
     List<BundleEntity> findByDestinyBundleContainingIgnoreCase(String destiny);
 
-    // tbd if the query is useful when front is implemented
-    // Reemplaza solo el método anotado @Query dentro de BundleRepository
+
+    // Query for E3 method, for bundle search with multiple optional parameters
     @Query("SELECT b FROM BundleEntity b WHERE " +
             "b.stateBundle = :state AND " +
             "b.availableSlotsBundle > 0 AND " +

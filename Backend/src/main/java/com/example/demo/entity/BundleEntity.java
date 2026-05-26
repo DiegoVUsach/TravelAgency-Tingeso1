@@ -50,7 +50,7 @@ public class BundleEntity {
     @Column(name = "available_slots_bundle", nullable = false)
     private int availableSlotsBundle; // to do: add restrictions for available slots (must be positive and not 0)
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING) // RELAX, ADVENTURE, CULTURAL, FAMILY, ROMANTIC, BUSINESS
     @Column(name = "tipo_experiencia_bundle", nullable = false)
     private ExperienceTypeState tipoExperienciaBundle;
 

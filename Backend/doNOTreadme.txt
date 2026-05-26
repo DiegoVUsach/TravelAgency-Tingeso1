@@ -42,9 +42,8 @@ client id: travelagency-frontend
 --------------------------------------------------------------------------------------
 agregar esto a los metodos de controllers para security
 @PreAuthorize("hasAnyRole('USER','ADMIN')") para lo de keycloak
-como hcaer lo
 
-e4 falta, manejar 2+ paq/revisar
+para armar keycloak despues se usa la imagen de docker
 
 
 remember to change all exceptions to english and to use the same format for all of them
