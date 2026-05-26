@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useRef } from 'react'; // <-- attemp to fix front load issue
 import keycloak from '../services/keycloak';
 
 const AuthContext = createContext();
@@ -9,7 +9,12 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [roles, setRoles] = useState([]);
 
+  const isRun = useRef(false); // <--  attemp to fix front load issue
+
   useEffect(() => {
+    if (isRun.current) return; // <-- attemp to fix front load issue, stops 2nd attempt
+    isRun.current = true;
+
     keycloak.init({ onLoad: 'check-sso', checkLoginIframe: false })
       .then((authenticated) => {
         setIsAuthenticated(authenticated);
