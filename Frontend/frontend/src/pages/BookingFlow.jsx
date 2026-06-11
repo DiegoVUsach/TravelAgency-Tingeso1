@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Form, Button, Spinner, Alert, ProgressBar } from 'react-bootstrap';
+import {
+  Container, Box, Typography, TextField, Button, Paper, Grid,
+  CircularProgress, Alert, Stepper, Step, StepLabel, IconButton
+} from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlined';
 import { useParams, useNavigate } from 'react-router-dom';
 import { bundleService } from '../services/bundleService';
 import { reservationService } from '../services/reservationService';
@@ -9,238 +16,195 @@ function BookingFlow() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  
+
   const [bundle, setBundle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [passengers, setPassengers] = useState(1);
   const [specialRequests, setSpecialRequests] = useState('');
-  
   const [quoteData, setQuoteData] = useState(null);
   const [loadingQuote, setLoadingQuote] = useState(false);
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     bundleService.getBundleById(id)
-      .then(data => {
-        setBundle(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError('Could not fetch package details.');
-        setLoading(false);
-      });
+      .then(data => { setBundle(data); setLoading(false); })
+      .catch(() => { setError('Could not fetch package details.'); setLoading(false); });
   }, [id]);
 
   useEffect(() => {
-    if (bundle && isAuthenticated) {
-      updateQuote(passengers);
-    }
+    if (bundle && isAuthenticated) updateQuote(passengers);
   }, [bundle, passengers, isAuthenticated]);
 
-  const updateQuote = (passengerCount) => {
+  const updateQuote = (count) => {
     setLoadingQuote(true);
-    const reservationData = {
-      items: [{ bundleId: bundle.idBundle, passengers: passengerCount }]
-    };
-
-    reservationService.quoteReservation(reservationData)
-      .then((data) => {
-        setQuoteData(data);
-        setLoadingQuote(false);
-      })
-      .catch(err => {
-        console.error("Failed to fetch quote", err);
-        setLoadingQuote(false);
-      });
+    reservationService.quoteReservation({ items: [{ bundleId: bundle.idBundle, passengers: count }] })
+      .then(data => { setQuoteData(data); setLoadingQuote(false); })
+      .catch(() => setLoadingQuote(false));
   };
 
   if (!isAuthenticated) {
     return (
-      <Container className="my-5 text-center py-5 glass-panel">
-        <h3 className="mb-4 text-primary">Authentication Required</h3>
-        <p className="text-muted mb-4">You must be logged in to make a reservation.</p>
-        <Button variant="primary" onClick={() => navigate('/')}>Back to Catalog</Button>
+      <Container maxWidth="sm" sx={{ py: 10, textAlign: 'center' }}>
+        <Paper sx={{ p: 5, borderRadius: 3 }}>
+          <Typography variant="h5" color="primary" sx={{ mb: 2 }}>Authentication Required</Typography>
+          <Typography color="text.secondary" sx={{ mb: 3 }}>You must be logged in to make a reservation.</Typography>
+          <Button variant="contained" onClick={() => navigate('/catalog')}>Back to Catalog</Button>
+        </Paper>
       </Container>
     );
   }
 
-  if (loading) return <Container className="text-center my-5 py-5"><Spinner animation="border" variant="primary" /></Container>;
-  if (error || !bundle) return <Container className="my-5"><Alert variant="danger">{error || "Package not found"}</Alert></Container>;
+  if (loading) return <Box sx={{ textAlign: 'center', py: 10 }}><CircularProgress /></Box>;
+  if (error || !bundle) return <Container sx={{ py: 5 }}><Alert severity="error">{error || 'Package not found'}</Alert></Container>;
 
   const handleNextStep = () => {
-    if (step === 1 && (passengers < 1 || passengers > bundle.availableSlotsBundle)) {
+    if (step === 0 && (passengers < 1 || passengers > bundle.availableSlotsBundle)) {
       alert(`Please select between 1 and ${bundle.availableSlotsBundle} passengers.`);
       return;
     }
-    setStep(step + 1);
+    setStep(1);
   };
 
   const handleConfirmReservation = () => {
     setIsSubmitting(true);
-    
-    const reservationData = {
-      items: [
-        {
-          bundleId: bundle.idBundle,
-          passengers: passengers
-        }
-      ]
-    };
-
-    reservationService.createReservation(reservationData)
+    reservationService.createReservation({ items: [{ bundleId: bundle.idBundle, passengers }] })
       .then((data) => {
         setIsSubmitting(false);
-        if (data && data.generatedReservationIds && data.generatedReservationIds.length > 0) {
-          navigate(`/payment/${data.generatedReservationIds[0]}`, { state: { amount: quoteData?.finalTotal || 0, bundleName: bundle.nameBundle } });
+        if (data?.generatedReservationIds?.length > 0) {
+          navigate(`/payment/${data.generatedReservationIds[0]}`, {
+            state: { amount: quoteData?.finalTotal || 0, bundleName: bundle.nameBundle }
+          });
         } else {
           setSuccess(true);
         }
       })
       .catch(err => {
-        console.error(err);
-        alert(err.response?.data?.message || 'Failed to create reservation. Please try again.');
+        alert(err.response?.data?.message || 'Failed to create reservation.');
         setIsSubmitting(false);
       });
   };
 
   if (success) {
     return (
-      <Container className="my-5 text-center animate-fade-up">
-        <div className="glass-panel p-5 d-inline-block">
-          <div className="mb-4" style={{ fontSize: '4rem' }}>✅</div>
-          <h2 className="text-success mb-3">Reservation Confirmed!</h2>
-          <p className="text-muted mb-4">Your reservation for <strong>{bundle.nameBundle}</strong> has been successfully created.</p>
-          <Button className="btn-premium" onClick={() => navigate('/my-reservations')}>
-            View My Reservations
-          </Button>
-        </div>
+      <Container maxWidth="sm" sx={{ py: 10, textAlign: 'center' }} className="animate-fade-up">
+        <Paper sx={{ p: 5, borderRadius: 3 }}>
+          <CheckCircleOutlineIcon sx={{ fontSize: 64, color: 'success.main', mb: 2 }} />
+          <Typography variant="h4" sx={{ mb: 1 }}>Reservation Confirmed!</Typography>
+          <Typography color="text.secondary" sx={{ mb: 3 }}>
+            Your reservation for <strong>{bundle.nameBundle}</strong> has been created.
+          </Typography>
+          <Button variant="contained" onClick={() => navigate('/my-reservations')}>View My Reservations</Button>
+        </Paper>
       </Container>
     );
   }
 
   return (
-    <Container className="my-5 max-w-md animate-fade-up" style={{ maxWidth: '800px' }}>
-      <Button variant="link" className="text-muted ps-0 mb-4 text-decoration-none" onClick={() => navigate(-1)}>
-        ← Back to Details
+    <Container maxWidth="md" sx={{ py: 4 }} className="animate-fade-up">
+      <Button startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)} sx={{ mb: 3, color: 'text.secondary' }}>
+        Back to Details
       </Button>
 
-      <div className="mb-5">
-        <h2 className="mb-3">Booking: {bundle.nameBundle}</h2>
-        <ProgressBar now={(step / 2) * 100} className="mb-2" style={{ height: '8px' }} />
-        <div className="d-flex justify-content-between text-muted small fw-bold text-uppercase">
-          <span>Step 1: Details</span>
-          <span>Step 2: Summary</span>
-        </div>
-      </div>
+      <Typography variant="h4" sx={{ mb: 1 }}>Booking: {bundle.nameBundle}</Typography>
 
-      <Row>
-        <Col md={8}>
-          <div className="glass-panel p-4 mb-4">
-            {step === 1 && (
-              <div className="animate-fade-up">
-                <h4 className="mb-4">Traveler Information</h4>
-                
-                <Form.Group className="mb-4">
-                  <Form.Label className="fw-bold">Number of Passengers</Form.Label>
-                  <div className="d-flex align-items-center gap-3">
-                    <Button variant="outline-primary" className="rounded-circle" style={{ width: '40px', height: '40px' }}
-                      onClick={() => setPassengers(Math.max(1, passengers - 1))} disabled={passengers <= 1}>-</Button>
-                    <span className="fs-4 fw-bold">{passengers}</span>
-                    <Button variant="outline-primary" className="rounded-circle" style={{ width: '40px', height: '40px' }}
-                      onClick={() => setPassengers(Math.min(bundle.availableSlotsBundle, passengers + 1))} disabled={passengers >= bundle.availableSlotsBundle}>+</Button>
-                  </div>
-                  <Form.Text className="text-muted">
-                    Available spots: {bundle.availableSlotsBundle}
-                  </Form.Text>
-                </Form.Group>
+      <Stepper activeStep={step} sx={{ mb: 4 }}>
+        <Step><StepLabel>Traveler Details</StepLabel></Step>
+        <Step><StepLabel>Review & Confirm</StepLabel></Step>
+      </Stepper>
 
-                <Form.Group className="mb-4">
-                  <Form.Label className="fw-bold">Special Requests (Optional)</Form.Label>
-                  <Form.Control 
-                    as="textarea" 
-                    rows={3} 
-                    className="premium-input"
-                    value={specialRequests}
-                    onChange={(e) => setSpecialRequests(e.target.value)}
-                    placeholder="E.g., dietary restrictions, accessibility needs..."
-                  />
-                </Form.Group>
-
-                <Button className="btn-premium w-100" onClick={handleNextStep} disabled={loadingQuote}>
-                  {loadingQuote ? <Spinner size="sm" /> : 'Continue to Summary'}
+      <Grid container spacing={3}>
+        <Grid size={{ xs: 12, md: 8 }}>
+          <Paper sx={{ p: 4, borderRadius: 3 }}>
+            {step === 0 && (
+              <Box className="animate-fade-up">
+                <Typography variant="h6" sx={{ mb: 3 }}>Traveler Information</Typography>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>Number of Passengers</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+                  <IconButton color="primary" onClick={() => setPassengers(Math.max(1, passengers - 1))} disabled={passengers <= 1}>
+                    <RemoveIcon />
+                  </IconButton>
+                  <Typography variant="h4" fontWeight={700}>{passengers}</Typography>
+                  <IconButton color="primary" onClick={() => setPassengers(Math.min(bundle.availableSlotsBundle, passengers + 1))} disabled={passengers >= bundle.availableSlotsBundle}>
+                    <AddIcon />
+                  </IconButton>
+                </Box>
+                <Typography variant="caption" color="text.secondary" sx={{ mb: 3, display: 'block' }}>
+                  Available spots: {bundle.availableSlotsBundle}
+                </Typography>
+                <TextField
+                  fullWidth multiline rows={3} label="Special Requests (Optional)"
+                  value={specialRequests} onChange={(e) => setSpecialRequests(e.target.value)}
+                  placeholder="E.g., dietary restrictions, accessibility needs..."
+                  sx={{ mb: 3 }}
+                />
+                <Button fullWidth variant="contained" onClick={handleNextStep} disabled={loadingQuote} size="large">
+                  {loadingQuote ? <CircularProgress size={20} /> : 'Continue to Summary'}
                 </Button>
-              </div>
+              </Box>
             )}
 
-            {step === 2 && (
-              <div className="animate-fade-up">
-                <h4 className="mb-4">Review Your Booking</h4>
-                <Alert variant="info" className="border-0 bg-light">
-                  <h6 className="mb-2 text-uppercase fw-bold text-primary">Important Information</h6>
-                  <ul className="mb-0 small text-muted">
+            {step === 1 && (
+              <Box className="animate-fade-up">
+                <Typography variant="h6" sx={{ mb: 3 }}>Review Your Booking</Typography>
+                <Alert severity="info" sx={{ mb: 3 }}>
+                  <Typography variant="subtitle2" sx={{ mb: 1 }}>Important Information</Typography>
+                  <ul style={{ margin: 0, paddingLeft: 20 }}>
                     <li>By confirming, you agree to the terms and conditions.</li>
                     <li>This reservation will be marked as "Pending Payment".</li>
-                    <li>Please complete payment within 48 hours to secure your spots.</li>
+                    <li>Please complete payment within 48 hours.</li>
                   </ul>
                 </Alert>
-
-                <div className="mt-4">
-                  <Button className="btn-secondary me-3" onClick={() => setStep(1)} disabled={isSubmitting}>
-                    Go Back
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  <Button variant="outlined" onClick={() => setStep(0)} disabled={isSubmitting}>Go Back</Button>
+                  <Button variant="contained" onClick={handleConfirmReservation} disabled={isSubmitting || loadingQuote}>
+                    {isSubmitting ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+                    {isSubmitting ? 'Processing...' : 'Confirm Reservation'}
                   </Button>
-                  <Button className="btn-premium" onClick={handleConfirmReservation} disabled={isSubmitting || loadingQuote}>
-                    {isSubmitting ? <><Spinner size="sm" className="me-2"/> Processing...</> : 'Confirm Reservation'}
-                  </Button>
-                </div>
-              </div>
+                </Box>
+              </Box>
             )}
-          </div>
-        </Col>
+          </Paper>
+        </Grid>
 
-        <Col md={4}>
-          <div className="filter-sidebar p-4 border border-light">
-            <h5 className="mb-4 border-bottom pb-3">Order Summary</h5>
-            
-            <div className="mb-3">
-              <span className="text-muted small d-block">Package</span>
-              <span className="fw-bold">{bundle.nameBundle}</span>
-            </div>
-            
-            <div className="mb-3 border-bottom pb-3">
-              <span className="text-muted small d-block">Passengers</span>
-              <span className="fw-bold">{passengers} Person(s)</span>
-            </div>
-
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Paper sx={{ p: 3, borderRadius: 3, position: 'sticky', top: 80 }}>
+            <Typography variant="h6" sx={{ mb: 2, pb: 2, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>Order Summary</Typography>
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="caption" color="text.secondary">Package</Typography>
+              <Typography fontWeight={600}>{bundle.nameBundle}</Typography>
+            </Box>
+            <Box sx={{ mb: 2, pb: 2, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <Typography variant="caption" color="text.secondary">Passengers</Typography>
+              <Typography fontWeight={600}>{passengers} Person(s)</Typography>
+            </Box>
             {loadingQuote ? (
-              <div className="text-center py-4"><Spinner animation="border" variant="primary" size="sm" /></div>
+              <Box sx={{ textAlign: 'center', py: 3 }}><CircularProgress size={24} /></Box>
             ) : (
               <>
-                <div className="d-flex justify-content-between mb-2 text-muted">
-                  <span>Base Price ({passengers}x)</span>
-                  <span>${quoteData?.subtotal?.toLocaleString() || (bundle.priceBundle * passengers).toLocaleString()}</span>
-                </div>
-
-                {quoteData && quoteData.totalDiscount > 0 && (
-                  <div className="d-flex justify-content-between mb-3 text-success small border-bottom pb-3">
-                    <span>Applied Discounts</span>
-                    <span>-${quoteData.totalDiscount.toLocaleString()}</span>
-                  </div>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography variant="body2" color="text.secondary">Base Price ({passengers}x)</Typography>
+                  <Typography variant="body2">${quoteData?.subtotal?.toLocaleString() || (bundle.priceBundle * passengers).toLocaleString()}</Typography>
+                </Box>
+                {quoteData?.totalDiscount > 0 && (
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                    <Typography variant="body2" color="success.main">Discounts</Typography>
+                    <Typography variant="body2" color="success.main">-${quoteData.totalDiscount.toLocaleString()}</Typography>
+                  </Box>
                 )}
-
-                <div className="d-flex justify-content-between mt-3 pt-2">
-                  <span className="fw-bold text-uppercase">Total Due</span>
-                  <span className="fw-bold fs-4 text-primary">${quoteData?.finalTotal?.toLocaleString() || (bundle.priceBundle * passengers).toLocaleString()}</span>
-                </div>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 2, mt: 2, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                  <Typography fontWeight={700}>TOTAL</Typography>
+                  <Typography variant="h5" color="primary" fontWeight={800}>
+                    ${quoteData?.finalTotal?.toLocaleString() || (bundle.priceBundle * passengers).toLocaleString()}
+                  </Typography>
+                </Box>
               </>
             )}
-          </div>
-        </Col>
-      </Row>
+          </Paper>
+        </Grid>
+      </Grid>
     </Container>
   );
 }

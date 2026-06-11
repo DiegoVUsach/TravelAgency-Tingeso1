@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Table, Badge, Button, Spinner, Alert } from 'react-bootstrap';
+import {
+  Container, Typography, Box, Paper, Table, TableHead, TableBody, TableRow, TableCell,
+  Chip, Button, CircularProgress, Alert
+} from '@mui/material';
+import DownloadIcon from '@mui/icons-material/Download';
 import { reservationService } from '../services/reservationService';
 
 function MyReservations() {
@@ -7,39 +11,32 @@ function MyReservations() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchReservations();
-  }, []);
+  useEffect(() => { fetchReservations(); }, []);
 
   const fetchReservations = () => {
     setLoading(true);
     reservationService.getMyReservations()
-      .then(data => {
-        setReservations(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError('Could not fetch your reservations.');
-        setLoading(false);
-      });
+      .then(data => { setReservations(data); setLoading(false); })
+      .catch(() => { setError('Could not fetch your reservations.'); setLoading(false); });
   };
 
   const handleDownloadReceipt = (id) => {
     reservationService.getReceipt(id)
       .then(receiptData => {
-        // Mocking a PDF download by generating a text blob
         const receiptText = `
-          ==============================
-             TRAVEL AGENCY RECEIPT
-          ==============================
-          Receipt ID: ${receiptData.receiptId}
-          Date: ${receiptData.receiptDate}
-          Reservation ID: ${receiptData.reservationId}
-          Amount Paid: $${receiptData.totalPaid}
-          ==============================
-          Thank you for your purchase!
+==============================
+   TRAVEL AGENCY RECEIPT
+==============================
+Receipt Code: ${receiptData.receiptCode}
+Issue Date: ${receiptData.issueDate}
+Client Email: ${receiptData.clientEmail}
+Package: ${receiptData.bundleName}
+Passengers: ${receiptData.numberOfPassengers}
+Amount Paid: $${receiptData.totalPaid}
+Status: ${receiptData.status}
+==============================
+Thank you for your purchase!
         `;
-        
         const blob = new Blob([receiptText], { type: 'text/plain' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -50,73 +47,71 @@ function MyReservations() {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
       })
-      .catch(err => {
-        alert("Could not generate receipt. Ensure the reservation is PAID/CONFIRMED.");
-      });
+      .catch(() => alert('Could not generate receipt. Ensure the reservation is CONFIRMED.'));
   };
 
-  const getStatusBadge = (status) => {
+  const getStatusColor = (status) => {
     switch (status) {
       case 'CONFIRMED': return 'success';
       case 'PENDING_PAYMENT': return 'warning';
-      case 'CANCELLED': return 'danger';
-      default: return 'secondary';
+      case 'CANCELED': return 'error';
+      default: return 'default';
     }
   };
 
   return (
-    <Container className="my-5 animate-fade-up">
-      <h2 className="mb-4">My Reservations</h2>
-      
-      {loading && <div className="text-center my-5"><Spinner animation="border" variant="primary" /></div>}
-      {error && <Alert variant="danger">{error}</Alert>}
+    <Container maxWidth="lg" sx={{ py: 4 }} className="animate-fade-up">
+      <Typography variant="h4" sx={{ mb: 1 }}>My Reservations</Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>Track your bookings and download receipts.</Typography>
+
+      {loading && <Box sx={{ textAlign: 'center', py: 8 }}><CircularProgress /></Box>}
+      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
       {!loading && !error && (
-        <div className="glass-panel overflow-hidden">
-          <Table responsive hover className="mb-0 align-middle">
-            <thead className="bg-light">
-              <tr>
-                <th className="py-3 px-4 border-0">ID</th>
-                <th className="py-3 px-4 border-0">Package</th>
-                <th className="py-3 px-4 border-0">Passengers</th>
-                <th className="py-3 px-4 border-0">Total</th>
-                <th className="py-3 px-4 border-0">Status</th>
-                <th className="py-3 px-4 border-0 text-end">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+        <Paper sx={{ borderRadius: 3, overflow: 'hidden' }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>ID</TableCell>
+                <TableCell>Package</TableCell>
+                <TableCell>Passengers</TableCell>
+                <TableCell>Total</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell align="right">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {reservations.map(res => (
-                <tr key={res.idReservation}>
-                  <td className="px-4 text-muted">#{res.idReservation}</td>
-                  <td className="px-4 fw-bold">{res.bundle?.nameBundle || `Package ID: ${res.idBundle}`}</td>
-                  <td className="px-4">{res.amountPassengers}</td>
-                  <td className="px-4">${res.totalPrice.toLocaleString()}</td>
-                  <td className="px-4">
-                    <Badge bg={getStatusBadge(res.stateReservation)}>
-                      {res.stateReservation}
-                    </Badge>
-                  </td>
-                  <td className="px-4 text-end">
-                    {res.stateReservation === 'CONFIRMED' && (
-                      <Button 
-                        variant="outline-primary" 
-                        size="sm"
-                        onClick={() => handleDownloadReceipt(res.idReservation)}
+                <TableRow key={res.id} hover>
+                  <TableCell sx={{ color: 'text.secondary' }}>#{res.id}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{res.bundle?.nameBundle || 'Unknown'}</TableCell>
+                  <TableCell>{res.numberOfPassengers}</TableCell>
+                  <TableCell>${res.totalAmount?.toLocaleString()}</TableCell>
+                  <TableCell>
+                    <Chip label={res.state} size="small" color={getStatusColor(res.state)} sx={{ fontWeight: 700 }} />
+                  </TableCell>
+                  <TableCell align="right">
+                    {res.state === 'CONFIRMED' && (
+                      <Button
+                        size="small" variant="outlined" startIcon={<DownloadIcon />}
+                        onClick={() => handleDownloadReceipt(res.id)}
                       >
-                        Download Receipt
+                        Receipt
                       </Button>
                     )}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
               {reservations.length === 0 && (
-                <tr>
-                  <td colSpan="6" className="text-center py-5 text-muted">You don't have any reservations yet.</td>
-                </tr>
+                <TableRow>
+                  <TableCell colSpan={6} sx={{ textAlign: 'center', py: 6, color: 'text.secondary' }}>
+                    You don't have any reservations yet.
+                  </TableCell>
+                </TableRow>
               )}
-            </tbody>
+            </TableBody>
           </Table>
-        </div>
+        </Paper>
       )}
     </Container>
   );

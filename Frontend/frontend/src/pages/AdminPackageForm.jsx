@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Form, Button, Row, Col, Spinner, Alert } from 'react-bootstrap';
+import {
+  Container, Paper, Typography, TextField, Button, Box, Grid, Alert,
+  CircularProgress, MenuItem, Select, FormControl, InputLabel
+} from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import SaveIcon from '@mui/icons-material/Save';
 import { useParams, useNavigate } from 'react-router-dom';
 import { bundleService } from '../services/bundleService';
 import { useAuth } from '../context/AuthProvider';
@@ -11,18 +16,10 @@ function AdminPackageForm() {
   const isEditMode = !!id;
 
   const [formData, setFormData] = useState({
-    nameBundle: '',
-    destinyBundle: '',
-    descBundle: '',
-    priceBundle: '',
-    availableSlotsBundle: '',
-    startDateBundle: '',
-    endDateBundle: '',
-    durationBundle: '',
-    stateBundle: 'AVAILABLE',
-    tipoExperienciaBundle: 'RELAX'
+    nameBundle: '', destinyBundle: '', descBundle: '', priceBundle: '',
+    availableSlotsBundle: '', startDateBundle: '', endDateBundle: '',
+    durationBundle: '', stateBundle: 'AVAILABLE', tipoExperienciaBundle: 'RELAX'
   });
-
   const [loading, setLoading] = useState(isEditMode);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -31,19 +28,14 @@ function AdminPackageForm() {
     if (isEditMode) {
       bundleService.getBundleById(id)
         .then(data => {
-          // Format dates to YYYY-MM-DD for input type="date"
-          const formattedData = {
+          setFormData({
             ...data,
             startDateBundle: data.startDateBundle ? data.startDateBundle.split('T')[0] : '',
-            endDateBundle: data.endDateBundle ? data.endDateBundle.split('T')[0] : ''
-          };
-          setFormData(formattedData);
+            endDateBundle: data.endDateBundle ? data.endDateBundle.split('T')[0] : '',
+          });
           setLoading(false);
         })
-        .catch(err => {
-          setError('Failed to fetch package details.');
-          setLoading(false);
-        });
+        .catch(() => { setError('Failed to fetch package details.'); setLoading(false); });
     }
   }, [id, isEditMode]);
 
@@ -53,169 +45,105 @@ function AdminPackageForm() {
   };
 
   const validateForm = () => {
-    if (Number(formData.priceBundle) <= 0) {
-      setError("Price must be greater than zero.");
-      return false;
-    }
-    if (Number(formData.availableSlotsBundle) <= 0) {
-      setError("Total spots must be greater than zero.");
-      return false;
-    }
-    if (new Date(formData.endDateBundle) <= new Date(formData.startDateBundle)) {
-      setError("Arrival date must be after departure date.");
-      return false;
-    }
-    if (formData.stateBundle === 'AVAILABLE' && Number(formData.availableSlotsBundle) === 0) {
-      setError("Cannot publish as available if there are no spots.");
-      return false;
-    }
+    if (Number(formData.priceBundle) <= 0) { setError('Price must be greater than zero.'); return false; }
+    if (Number(formData.availableSlotsBundle) <= 0) { setError('Total spots must be greater than zero.'); return false; }
+    if (new Date(formData.endDateBundle) <= new Date(formData.startDateBundle)) { setError('Arrival date must be after departure.'); return false; }
     return true;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-
     setSaving(true);
     setError(null);
-
-    // Prepare payload
-    const payload = {
-      ...formData,
-      priceBundle: Number(formData.priceBundle),
-      availableSlotsBundle: Number(formData.availableSlotsBundle),
-      durationBundle: Number(formData.durationBundle)
-    };
-
-    const request = isEditMode 
-      ? bundleService.updateBundle(id, payload)
-      : bundleService.createBundle(payload);
-
+    const payload = { ...formData, priceBundle: Number(formData.priceBundle), availableSlotsBundle: Number(formData.availableSlotsBundle), durationBundle: Number(formData.durationBundle) };
+    const request = isEditMode ? bundleService.updateBundle(id, payload) : bundleService.createBundle(payload);
     request
-      .then(() => {
-        navigate('/admin/dashboard');
-      })
-      .catch(err => {
-        setError(err.response?.data?.message || 'Failed to save package. Please try again.');
-        setSaving(false);
-      });
+      .then(() => navigate('/admin/dashboard'))
+      .catch(err => { setError(err.response?.data?.message || 'Failed to save package.'); setSaving(false); });
   };
 
   if (role !== 'ADMIN') {
     return (
-      <Container className="my-5 text-center py-5 glass-panel">
-        <h3 className="mb-4 text-danger">Access Denied</h3>
-        <p className="text-muted">You do not have permission to view this page.</p>
+      <Container maxWidth="sm" sx={{ py: 10, textAlign: 'center' }}>
+        <Paper sx={{ p: 5, borderRadius: 3 }}>
+          <Typography variant="h5" color="error">Access Denied</Typography>
+        </Paper>
       </Container>
     );
   }
 
-  if (loading) return <Container className="text-center my-5 py-5"><Spinner animation="border" variant="primary" /></Container>;
+  if (loading) return <Box sx={{ textAlign: 'center', py: 10 }}><CircularProgress /></Box>;
 
   return (
-    <Container className="my-5 max-w-md animate-fade-up" style={{ maxWidth: '900px' }}>
-      <Button variant="link" className="text-muted ps-0 mb-4 text-decoration-none" onClick={() => navigate('/admin/dashboard')}>
-        ← Back to Dashboard
+    <Container maxWidth="md" sx={{ py: 4 }} className="animate-fade-up">
+      <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/admin/dashboard')} sx={{ mb: 3, color: 'text.secondary' }}>
+        Back to Dashboard
       </Button>
 
-      <div className="glass-panel p-5">
-        <h2 className="mb-4">{isEditMode ? 'Edit Package' : 'Create New Package'}</h2>
-        
-        {error && <Alert variant="danger" className="mb-4">{error}</Alert>}
+      <Paper sx={{ p: 4, borderRadius: 3 }}>
+        <Typography variant="h4" sx={{ mb: 3 }}>{isEditMode ? 'Edit Package' : 'Create New Package'}</Typography>
+        {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
-        <Form onSubmit={handleSubmit}>
-          <Row>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label className="fw-bold">Package Name</Form.Label>
-                <Form.Control required name="nameBundle" value={formData.nameBundle} onChange={handleInputChange} className="premium-input" />
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label className="fw-bold">Destiny</Form.Label>
-                <Form.Control required name="destinyBundle" value={formData.destinyBundle} onChange={handleInputChange} className="premium-input" />
-              </Form.Group>
-            </Col>
-          </Row>
+        <Box component="form" onSubmit={handleSubmit}>
+          <Grid container spacing={2}>
+            <Grid size={6}>
+              <TextField fullWidth required label="Package Name" name="nameBundle" value={formData.nameBundle} onChange={handleInputChange} />
+            </Grid>
+            <Grid size={6}>
+              <TextField fullWidth required label="Destination" name="destinyBundle" value={formData.destinyBundle} onChange={handleInputChange} />
+            </Grid>
+            <Grid size={12}>
+              <TextField fullWidth required multiline rows={3} label="Description" name="descBundle" value={formData.descBundle} onChange={handleInputChange} />
+            </Grid>
+            <Grid size={4}>
+              <TextField fullWidth required type="number" label="Price (CLP)" name="priceBundle" value={formData.priceBundle} onChange={handleInputChange} inputProps={{ min: 1 }} />
+            </Grid>
+            <Grid size={4}>
+              <TextField fullWidth required type="number" label="Total Spots" name="availableSlotsBundle" value={formData.availableSlotsBundle} onChange={handleInputChange} inputProps={{ min: 1 }} />
+            </Grid>
+            <Grid size={4}>
+              <TextField fullWidth required type="number" label="Duration (Days)" name="durationBundle" value={formData.durationBundle} onChange={handleInputChange} inputProps={{ min: 1 }} />
+            </Grid>
+            <Grid size={6}>
+              <TextField fullWidth required type="date" label="Departure Date" name="startDateBundle" value={formData.startDateBundle} onChange={handleInputChange} InputLabelProps={{ shrink: true }} />
+            </Grid>
+            <Grid size={6}>
+              <TextField fullWidth required type="date" label="Arrival Date" name="endDateBundle" value={formData.endDateBundle} onChange={handleInputChange} InputLabelProps={{ shrink: true }} />
+            </Grid>
+            <Grid size={6}>
+              <FormControl fullWidth>
+                <InputLabel>Experience Type</InputLabel>
+                <Select name="tipoExperienciaBundle" value={formData.tipoExperienciaBundle || 'RELAX'} onChange={handleInputChange} label="Experience Type">
+                  <MenuItem value="RELAX">Relax</MenuItem>
+                  <MenuItem value="ADVENTURE">Adventure</MenuItem>
+                  <MenuItem value="CULTURAL">Cultural</MenuItem>
+                  <MenuItem value="FAMILY">Family</MenuItem>
+                  <MenuItem value="ROMANTIC">Romantic</MenuItem>
+                  <MenuItem value="BUSINESS">Business</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={6}>
+              <FormControl fullWidth>
+                <InputLabel>Status</InputLabel>
+                <Select name="stateBundle" value={formData.stateBundle} onChange={handleInputChange} label="Status">
+                  <MenuItem value="AVAILABLE">Available</MenuItem>
+                  <MenuItem value="SOLD_OUT">Sold Out</MenuItem>
+                  <MenuItem value="CANCELED">Canceled</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
 
-          <Form.Group className="mb-3">
-            <Form.Label className="fw-bold">Description</Form.Label>
-            <Form.Control required as="textarea" rows={4} name="descBundle" value={formData.descBundle} onChange={handleInputChange} className="premium-input" />
-          </Form.Group>
-
-          <Row>
-            <Col md={4}>
-              <Form.Group className="mb-3">
-                <Form.Label className="fw-bold">Price (CLP)</Form.Label>
-                <Form.Control required type="number" min="1" name="priceBundle" value={formData.priceBundle} onChange={handleInputChange} className="premium-input" />
-              </Form.Group>
-            </Col>
-            <Col md={4}>
-              <Form.Group className="mb-3">
-                <Form.Label className="fw-bold">Total Spots</Form.Label>
-                <Form.Control required type="number" min="1" name="availableSlotsBundle" value={formData.availableSlotsBundle} onChange={handleInputChange} className="premium-input" />
-              </Form.Group>
-            </Col>
-            <Col md={4}>
-              <Form.Group className="mb-3">
-                <Form.Label className="fw-bold">Duration (Days)</Form.Label>
-                <Form.Control required type="number" min="1" name="durationBundle" value={formData.durationBundle} onChange={handleInputChange} className="premium-input" />
-              </Form.Group>
-            </Col>
-          </Row>
-
-          <Row>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label className="fw-bold">Departure Date</Form.Label>
-                <Form.Control required type="date" name="startDateBundle" value={formData.startDateBundle} onChange={handleInputChange} className="premium-input" />
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label className="fw-bold">Arrival Date</Form.Label>
-                <Form.Control required type="date" name="endDateBundle" value={formData.endDateBundle} onChange={handleInputChange} className="premium-input" />
-              </Form.Group>
-            </Col>
-          </Row>
-
-          <Row className="mb-4">
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label className="fw-bold">Experience Type</Form.Label>
-                <Form.Select required name="tipoExperienciaBundle" value={formData.tipoExperienciaBundle || 'RELAX'} onChange={handleInputChange} className="premium-input">
-                  <option value="RELAX">Relax</option>
-                  <option value="ADVENTURE">Adventure</option>
-                  <option value="CULTURAL">Cultural</option>
-                  <option value="FAMILY">Family</option>
-                  <option value="ROMANTIC">Romantic</option>
-                  <option value="BUSINESS">Business</option>
-                </Form.Select>
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label className="fw-bold">Status</Form.Label>
-                <Form.Select required name="stateBundle" value={formData.stateBundle} onChange={handleInputChange} className="premium-input">
-                  <option value="AVAILABLE">Available</option>
-                  <option value="SOLD_OUT">Sold Out</option>
-                  <option value="CANCELED">Canceled</option>
-                </Form.Select>
-              </Form.Group>
-            </Col>
-          </Row>
-
-          <div className="d-flex justify-content-end border-top pt-4">
-            <Button variant="outline-secondary" className="me-3 px-4" onClick={() => navigate('/admin/dashboard')} disabled={saving}>
-              Cancel
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 4, pt: 3, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <Button variant="outlined" onClick={() => navigate('/admin/dashboard')} disabled={saving}>Cancel</Button>
+            <Button variant="contained" type="submit" startIcon={<SaveIcon />} disabled={saving}>
+              {saving ? <CircularProgress size={20} /> : 'Save Package'}
             </Button>
-            <Button type="submit" className="btn-premium px-5" disabled={saving}>
-              {saving ? <Spinner size="sm" /> : 'Save Package'}
-            </Button>
-          </div>
-        </Form>
-      </div>
+          </Box>
+        </Box>
+      </Paper>
     </Container>
   );
 }

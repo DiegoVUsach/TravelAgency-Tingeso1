@@ -1,5 +1,8 @@
 Personal notes, do not take as instructions, just a reminder for myself
-
+TODO:
+ - ver que perfil y reservas funcione
+ - poblar base de datos con datos de prueba
+ - ver tema imagenes frontend
 Progress
 # BACKEND
 E1 must be done at the end
@@ -18,7 +21,7 @@ E5
 E6
 E7
 
-# FRONTEND
+# FRONTEND ready(?
 E1
 E2
 E3

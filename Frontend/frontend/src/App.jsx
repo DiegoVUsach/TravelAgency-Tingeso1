@@ -2,7 +2,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthProvider';
 
 import Navbar from './components/Navbar';
-import Home from './pages/Home';
+import LandingPage from './pages/LandingPage';
+import Catalog from './pages/Catalog';
 import BookingFlow from './pages/BookingFlow';
 import Payment from './pages/Payment';
 import MyReservations from './pages/MyReservations';
@@ -12,6 +13,7 @@ import AdminPackageForm from './pages/AdminPackageForm';
 import AdminUsers from './pages/AdminUsers';
 import PackageDetails from './pages/PackageDetails';
 import AdminReports from './pages/AdminReports';
+import AdminReservations from './pages/AdminReservations';
 
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { isAuthenticated, hasRole } = useAuth();
@@ -35,7 +37,8 @@ function App() {
         <div className="main-content">
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/catalog" element={<Catalog />} />
             <Route path="/package/:id" element={<PackageDetails />} />
             
             {/* Client Routes */}
@@ -64,6 +67,11 @@ function App() {
             <Route path="/admin/dashboard" element={
               <ProtectedRoute requiredRole="ADMIN">
                 <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/reservations" element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <AdminReservations />
               </ProtectedRoute>
             } />
             <Route path="/admin/package/new" element={

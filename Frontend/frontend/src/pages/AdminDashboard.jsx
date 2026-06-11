@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Table, Button, Spinner, Alert, Badge } from 'react-bootstrap';
+import {
+  Container, Typography, Box, Paper, Table, TableHead, TableBody, TableRow, TableCell,
+  Chip, Button, CircularProgress, Alert, IconButton
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from 'react-router-dom';
 import { bundleService } from '../services/bundleService';
 import { useAuth } from '../context/AuthProvider';
@@ -11,114 +17,95 @@ function AdminDashboard() {
   const navigate = useNavigate();
   const { role } = useAuth();
 
-  useEffect(() => {
-    fetchBundles();
-  }, []);
+  useEffect(() => { fetchBundles(); }, []);
 
   const fetchBundles = () => {
     setLoading(true);
     bundleService.getAllBundles()
-      .then(data => {
-        setBundles(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError('Failed to fetch packages from the server.');
-        setLoading(false);
-      });
+      .then(data => { setBundles(data); setLoading(false); })
+      .catch(() => { setError('Failed to fetch packages.'); setLoading(false); });
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to deactivate/delete this package?')) {
+    if (window.confirm('Are you sure you want to delete this package?')) {
       bundleService.deleteBundle(id)
-        .then(() => {
-          fetchBundles(); // refresh list
-        })
-        .catch(err => {
-          alert('Failed to delete package. It might have active reservations.');
-        });
+        .then(() => fetchBundles())
+        .catch(() => alert('Failed to delete package.'));
     }
   };
 
   if (role !== 'ADMIN') {
     return (
-      <Container className="my-5 text-center py-5 glass-panel">
-        <h3 className="mb-4 text-danger">Access Denied</h3>
-        <p className="text-muted mb-4">You do not have permission to view the Admin Dashboard.</p>
-        <Alert variant="warning" className="d-inline-block">Please use the 'Mock Auth' dropdown in the Navbar to switch to 'Admin'.</Alert>
+      <Container maxWidth="sm" sx={{ py: 10, textAlign: 'center' }}>
+        <Paper sx={{ p: 5, borderRadius: 3 }}>
+          <Typography variant="h5" color="error" sx={{ mb: 2 }}>Access Denied</Typography>
+          <Typography color="text.secondary">You do not have permission to view this page.</Typography>
+        </Paper>
       </Container>
     );
   }
 
   return (
-    <Container className="my-5 animate-fade-up">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h2>Admin Dashboard</h2>
-          <p className="text-muted">Manage your travel packages and catalog.</p>
-        </div>
-        <Button className="btn-premium" onClick={() => navigate('/admin/package/new')}>
-          + Create New Package
+    <Container maxWidth="xl" sx={{ py: 4 }} className="animate-fade-up">
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Box>
+          <Typography variant="h4">Admin Dashboard</Typography>
+          <Typography variant="body2" color="text.secondary">Manage your travel packages and catalog.</Typography>
+        </Box>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={() => navigate('/admin/package/new')}>
+          Create Package
         </Button>
-      </div>
+      </Box>
 
-      {loading && <div className="text-center my-5"><Spinner animation="border" variant="primary" /></div>}
-      {error && <Alert variant="danger">{error}</Alert>}
+      {loading && <Box sx={{ textAlign: 'center', py: 8 }}><CircularProgress /></Box>}
+      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
       {!loading && !error && (
-        <div className="glass-panel overflow-hidden">
-          <Table responsive hover className="mb-0 align-middle">
-            <thead className="bg-light">
-              <tr>
-                <th className="py-3 px-4 border-0">ID</th>
-                <th className="py-3 px-4 border-0">Package Name</th>
-                <th className="py-3 px-4 border-0">Destiny</th>
-                <th className="py-3 px-4 border-0">Price (CLP)</th>
-                <th className="py-3 px-4 border-0">Spots</th>
-                <th className="py-3 px-4 border-0">Status</th>
-                <th className="py-3 px-4 border-0 text-end">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+        <Paper sx={{ borderRadius: 3, overflow: 'hidden' }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>ID</TableCell>
+                <TableCell>Package Name</TableCell>
+                <TableCell>Destination</TableCell>
+                <TableCell>Price (CLP)</TableCell>
+                <TableCell>Spots</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell align="right">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {bundles.map(bundle => (
-                <tr key={bundle.idBundle}>
-                  <td className="px-4 text-muted">#{bundle.idBundle}</td>
-                  <td className="px-4 fw-bold">{bundle.nameBundle}</td>
-                  <td className="px-4 text-muted">{bundle.destinyBundle}</td>
-                  <td className="px-4">${bundle.priceBundle.toLocaleString()}</td>
-                  <td className="px-4">{bundle.availableSlotsBundle}</td>
-                  <td className="px-4">
-                    <Badge bg={bundle.stateBundle === 'AVAILABLE' ? 'success' : 'secondary'}>
-                      {bundle.stateBundle}
-                    </Badge>
-                  </td>
-                  <td className="px-4 text-end">
-                    <Button 
-                      variant="outline-primary" 
-                      size="sm" 
-                      className="me-2"
-                      onClick={() => navigate(`/admin/package/edit/${bundle.idBundle}`)}
-                    >
-                      Edit
-                    </Button>
-                    <Button 
-                      variant="outline-danger" 
-                      size="sm"
-                      onClick={() => handleDelete(bundle.idBundle)}
-                    >
-                      Delete
-                    </Button>
-                  </td>
-                </tr>
+                <TableRow key={bundle.idBundle} hover>
+                  <TableCell sx={{ color: 'text.secondary' }}>#{bundle.idBundle}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{bundle.nameBundle}</TableCell>
+                  <TableCell sx={{ color: 'text.secondary' }}>{bundle.destinyBundle}</TableCell>
+                  <TableCell>${bundle.priceBundle?.toLocaleString()}</TableCell>
+                  <TableCell>{bundle.availableSlotsBundle}</TableCell>
+                  <TableCell>
+                    <Chip label={bundle.stateBundle} size="small"
+                      color={bundle.stateBundle === 'AVAILABLE' ? 'success' : 'default'} sx={{ fontWeight: 700 }} />
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton size="small" color="primary" onClick={() => navigate(`/admin/package/edit/${bundle.idBundle}`)}>
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton size="small" color="error" onClick={() => handleDelete(bundle.idBundle)}>
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
               ))}
               {bundles.length === 0 && (
-                <tr>
-                  <td colSpan="7" className="text-center py-5 text-muted">No packages found. Create one to get started.</td>
-                </tr>
+                <TableRow>
+                  <TableCell colSpan={7} sx={{ textAlign: 'center', py: 6, color: 'text.secondary' }}>
+                    No packages found. Create one to get started.
+                  </TableCell>
+                </TableRow>
               )}
-            </tbody>
+            </TableBody>
           </Table>
-        </div>
+        </Paper>
       )}
     </Container>
   );

@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Badge, Spinner, Alert } from 'react-bootstrap';
+import {
+  Container, Box, Typography, Grid, Button, Chip, CircularProgress, Alert, Paper
+} from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import GroupIcon from '@mui/icons-material/Group';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { useParams, useNavigate } from 'react-router-dom';
 import { bundleService } from '../services/bundleService';
 
@@ -12,133 +19,125 @@ function PackageDetails() {
 
   useEffect(() => {
     bundleService.getBundleById(id)
-      .then(data => {
-        setBundle(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError('Could not fetch package details. Please try again.');
-        setLoading(false);
-      });
+      .then(data => { setBundle(data); setLoading(false); })
+      .catch(() => { setError('Could not fetch package details.'); setLoading(false); });
   }, [id]);
 
   const getImageUrl = (type) => {
     const images = {
-      RELAX: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=2070&auto=format&fit=crop',
-      ADVENTURE: 'https://images.unsplash.com/photo-1533240332313-0db49b459ad6?q=80&w=1974&auto=format&fit=crop',
-      CULTURAL: 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?q=80&w=2070&auto=format&fit=crop',
-      FAMILY: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=2070&auto=format&fit=crop',
-      ROMANTIC: 'https://images.unsplash.com/photo-1516815231560-8f41ec531527?q=80&w=2067&auto=format&fit=crop',
-      BUSINESS: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2069&auto=format&fit=crop'
+      RELAX: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=1200&auto=format&fit=crop',
+      ADVENTURE: 'https://images.unsplash.com/photo-1533240332313-0db49b459ad6?q=80&w=1200&auto=format&fit=crop',
+      CULTURAL: 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?q=80&w=1200&auto=format&fit=crop',
+      FAMILY: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=1200&auto=format&fit=crop',
+      ROMANTIC: 'https://images.unsplash.com/photo-1516815231560-8f41ec531527?q=80&w=1200&auto=format&fit=crop',
+      BUSINESS: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop',
     };
-    return images[type] || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=1935&auto=format&fit=crop';
+    return images[type] || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=1200&auto=format&fit=crop';
   };
 
-  if (loading) {
-    return (
-      <Container className="text-center my-5 py-5">
-        <Spinner animation="grow" variant="primary" />
-        <p className="mt-3 text-muted">Loading package details...</p>
-      </Container>
-    );
-  }
-
-  if (error || !bundle) {
-    return (
-      <Container className="my-5">
-        <Alert variant="danger" className="text-center rounded-4 shadow-sm">
-          {error || "Package not found"}
-        </Alert>
-        <div className="text-center mt-4">
-          <Button variant="outline-primary" onClick={() => navigate('/')}>Back to Catalog</Button>
-        </div>
-      </Container>
-    );
-  }
+  if (loading) return <Box sx={{ textAlign: 'center', py: 10 }}><CircularProgress /></Box>;
+  if (error || !bundle) return <Container sx={{ py: 5 }}><Alert severity="error">{error || 'Package not found'}</Alert></Container>;
 
   const isAvailable = bundle.stateBundle === 'AVAILABLE';
 
   return (
-    <Container className="my-5 animate-fade-up">
-      <Row className="mb-4">
-        <Col>
-          <Button variant="link" className="text-decoration-none ps-0" style={{ color: 'var(--text-muted)' }} onClick={() => navigate(-1)}>
-            ← Back
-          </Button>
-        </Col>
-      </Row>
+    <Container maxWidth="lg" sx={{ py: 4 }} className="animate-fade-up">
+      <Button startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)} sx={{ mb: 3, color: 'text.secondary' }}>
+        Back
+      </Button>
 
-      <Row>
-        {/* Image Section */}
-        <Col lg={7} className="mb-4">
-          <div style={{ borderRadius: 'var(--border-radius-lg)', overflow: 'hidden', boxShadow: 'var(--shadow-md)', position: 'relative' }}>
-            <div className="premium-badge" style={{ fontSize: '1rem', padding: '10px 20px' }}>
-              {bundle.tipoExperienciaBundle || 'PREMIUM'}
-            </div>
-            <img 
-              src={getImageUrl(bundle.tipoExperienciaBundle)} 
-              alt={bundle.nameBundle} 
-              style={{ width: '100%', height: '500px', objectFit: 'cover' }}
+      <Grid container spacing={4}>
+        {/* Image */}
+        <Grid size={{ xs: 12, lg: 7 }}>
+          <Box sx={{ borderRadius: 3, overflow: 'hidden', position: 'relative' }}>
+            <Chip
+              label={bundle.tipoExperienciaBundle || 'PREMIUM'}
+              sx={{
+                position: 'absolute', top: 16, left: 16, zIndex: 1,
+                bgcolor: 'rgba(170,59,255,0.9)', color: 'white', fontWeight: 700,
+              }}
             />
-          </div>
-        </Col>
+            <img
+              src={getImageUrl(bundle.tipoExperienciaBundle)}
+              alt={bundle.nameBundle}
+              style={{ width: '100%', height: 480, objectFit: 'cover', display: 'block' }}
+            />
+          </Box>
+        </Grid>
 
-        {/* Details Section */}
-        <Col lg={5}>
-          <div className="glass-panel p-5 h-100 d-flex flex-column">
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <Badge bg={isAvailable ? 'success' : 'danger'} style={{ fontSize: '0.9rem', padding: '8px 16px', borderRadius: '20px' }}>
-                {bundle.stateBundle}
-              </Badge>
-              <span className="text-muted fw-bold">⏳ {bundle.durationBundle} Days</span>
-            </div>
+        {/* Details */}
+        <Grid size={{ xs: 12, lg: 5 }}>
+          <Paper sx={{ p: 4, borderRadius: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Chip
+                label={bundle.stateBundle}
+                color={isAvailable ? 'success' : 'error'}
+                sx={{ fontWeight: 700 }}
+              />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <AccessTimeIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+                <Typography variant="body2" color="text.secondary" fontWeight={600}>
+                  {bundle.durationBundle} Days
+                </Typography>
+              </Box>
+            </Box>
 
-            <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{bundle.nameBundle}</h1>
-            <p className="text-muted mb-4 d-flex align-items-center fs-5">
-              <span style={{ color: 'var(--secondary-color)', marginRight: '8px' }}>📍</span> 
-              {bundle.destinyBundle}
-            </p>
+            <Typography variant="h3" sx={{ fontSize: '2rem', mb: 1 }}>{bundle.nameBundle}</Typography>
 
-            <div className="mb-4 flex-grow-1">
-              <h5 className="mb-3">About this experience</h5>
-              <p style={{ lineHeight: '1.8', color: 'var(--text-muted)' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 3 }}>
+              <LocationOnIcon sx={{ color: 'secondary.main', fontSize: 20 }} />
+              <Typography variant="h6" color="text.secondary" fontWeight={400}>{bundle.destinyBundle}</Typography>
+            </Box>
+
+            <Box sx={{ mb: 3, flexGrow: 1 }}>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>About this experience</Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.8 }}>
                 {bundle.descBundle}
-              </p>
-            </div>
+              </Typography>
+            </Box>
 
-            <div className="border-top pt-4 mb-4">
-              <Row>
-                <Col xs={6}>
-                  <p className="text-muted small mb-1">Available Spots</p>
-                  <p className="fw-bold fs-5">{bundle.availableSlotsBundle}</p>
-                </Col>
-                <Col xs={6}>
-                  <p className="text-muted small mb-1">Dates</p>
-                  <p className="fw-bold">
-                    {new Date(bundle.startDateBundle).toLocaleDateString()} - {new Date(bundle.endDateBundle).toLocaleDateString()}
-                  </p>
-                </Col>
-              </Row>
-            </div>
+            <Grid container spacing={2} sx={{ mb: 3, pt: 2, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+              <Grid size={6}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <GroupIcon sx={{ color: 'primary.main' }} />
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Available Spots</Typography>
+                    <Typography variant="body1" fontWeight={700}>{bundle.availableSlotsBundle}</Typography>
+                  </Box>
+                </Box>
+              </Grid>
+              <Grid size={6}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CalendarMonthIcon sx={{ color: 'secondary.main' }} />
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Dates</Typography>
+                    <Typography variant="body2" fontWeight={600}>
+                      {new Date(bundle.startDateBundle).toLocaleDateString()} - {new Date(bundle.endDateBundle).toLocaleDateString()}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Grid>
+            </Grid>
 
-            <div className="mt-auto bg-light p-4 rounded-4 text-center">
-              <p className="text-muted mb-1 text-uppercase small fw-bold">Total Price</p>
-              <h2 style={{ color: 'var(--primary-color)', fontSize: '2.5rem', marginBottom: '1.5rem' }}>
-                ${bundle.priceBundle.toLocaleString()} <span className="fs-6 text-muted">CLP / person</span>
-              </h2>
-              
-              <Button 
-                className={`w-100 ${isAvailable ? 'btn-premium' : 'btn-secondary'}`} 
-                style={{ padding: '16px', fontSize: '1.1rem' }}
+            <Paper sx={{ p: 3, borderRadius: 3, textAlign: 'center', bgcolor: 'rgba(170,59,255,0.05)', border: '1px solid rgba(170,59,255,0.15)' }}>
+              <Typography variant="caption" color="text.secondary" fontWeight={700} textTransform="uppercase">
+                Price per person
+              </Typography>
+              <Typography variant="h3" color="primary" sx={{ fontWeight: 800, my: 1 }}>
+                ${bundle.priceBundle?.toLocaleString()} <Typography component="span" variant="body2" color="text.secondary">CLP</Typography>
+              </Typography>
+              <Button
+                fullWidth variant="contained" size="large"
                 disabled={!isAvailable}
                 onClick={() => navigate(`/book/${bundle.idBundle}`)}
+                sx={{ py: 1.5, fontSize: '1.05rem' }}
               >
                 {isAvailable ? 'Book This Experience' : 'Currently Unavailable'}
               </Button>
-            </div>
-          </div>
-        </Col>
-      </Row>
+            </Paper>
+          </Paper>
+        </Grid>
+      </Grid>
     </Container>
   );
 }

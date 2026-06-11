@@ -1,56 +1,143 @@
-import React from 'react';
-import { Navbar as BootstrapNavbar, Container, Nav, Button } from 'react-bootstrap';
+import React, { useState } from 'react';
+import {
+  AppBar, Toolbar, Typography, Button, Box, IconButton, Menu, MenuItem,
+  Avatar, Divider, ListItemIcon, Container
+} from '@mui/material';
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import PersonIcon from '@mui/icons-material/Person';
+import LogoutIcon from '@mui/icons-material/Logout';
+import BookOnlineIcon from '@mui/icons-material/BookOnline';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import PeopleIcon from '@mui/icons-material/People';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import ExploreIcon from '@mui/icons-material/Explore';
+import LoginIcon from '@mui/icons-material/Login';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthProvider';
 
 function Navbar() {
   const { isAuthenticated, user, localUser, hasRole, login, logout } = useAuth();
   const navigate = useNavigate();
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleMenu = (e) => setAnchorEl(e.currentTarget);
+  const handleClose = () => setAnchorEl(null);
+
+  const displayName = localUser?.fullName || user?.firstName || user?.username || 'User';
+  const initials = displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
 
   return (
-    <BootstrapNavbar bg="dark" variant="dark" expand="lg" className="mb-4">
-      <Container>
-        <BootstrapNavbar.Brand as={Link} to="/">TravelAgency</BootstrapNavbar.Brand>
-        <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
-        <BootstrapNavbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            <Nav.Link as={Link} to="/">Catalog</Nav.Link>
-            
+    <AppBar position="sticky">
+      <Container maxWidth="xl">
+        <Toolbar disableGutters sx={{ gap: 1 }}>
+          {/* Logo */}
+          <FlightTakeoffIcon sx={{ color: 'primary.main', mr: 1 }} />
+          <Typography
+            variant="h6"
+            component={Link}
+            to="/"
+            sx={{
+              fontWeight: 800, color: 'white', textDecoration: 'none', mr: 4,
+              background: 'linear-gradient(135deg, #aa3bff, #00bcd4)',
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+            }}
+          >
+            TravelAgency
+          </Typography>
+
+          {/* Nav Links */}
+          <Box sx={{ display: 'flex', gap: 0.5, flexGrow: 1 }}>
+            <Button
+              component={Link} to="/catalog"
+              startIcon={<ExploreIcon />}
+              sx={{ color: 'text.secondary', '&:hover': { color: 'white', bgcolor: 'rgba(255,255,255,0.05)' } }}
+            >
+              Catalog
+            </Button>
+
             {isAuthenticated && hasRole('USER') && (
-              <>
-                <Nav.Link as={Link} to="/my-reservations">My Reservations</Nav.Link>
-                <Nav.Link as={Link} to="/profile">My Profile</Nav.Link>
-              </>
-            )}
-            
-            {isAuthenticated && hasRole('ADMIN') && (
-              <>
-                <Nav.Link as={Link} to="/admin/dashboard">Packages</Nav.Link>
-                <Nav.Link as={Link} to="/admin/users">Users</Nav.Link>
-                <Nav.Link as={Link} to="/admin/reports">Reports</Nav.Link>
-              </>
-            )}
-          </Nav>
-          
-          <Nav className="ms-auto align-items-center">
-            {isAuthenticated ? (
-              <>
-                <BootstrapNavbar.Text className="text-light me-3">
-                  Signed in as: <strong>{localUser?.fullName || user?.firstName || user?.username || 'User'}</strong>
-                </BootstrapNavbar.Text>
-                <Button variant="outline-light" size="sm" onClick={() => { logout(); navigate('/'); }}>
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <Button variant="primary" size="sm" onClick={login}>
-                Login
+              <Button
+                component={Link} to="/my-reservations"
+                startIcon={<BookOnlineIcon />}
+                sx={{ color: 'text.secondary', '&:hover': { color: 'white', bgcolor: 'rgba(255,255,255,0.05)' } }}
+              >
+                My Reservations
               </Button>
             )}
-          </Nav>
-        </BootstrapNavbar.Collapse>
+
+            {isAuthenticated && hasRole('ADMIN') && (
+              <>
+                <Button component={Link} to="/admin/dashboard" startIcon={<DashboardIcon />}
+                  sx={{ color: 'text.secondary', '&:hover': { color: 'white', bgcolor: 'rgba(255,255,255,0.05)' } }}>
+                  Packages
+                </Button>
+                <Button component={Link} to="/admin/reservations" startIcon={<ReceiptLongIcon />}
+                  sx={{ color: 'text.secondary', '&:hover': { color: 'white', bgcolor: 'rgba(255,255,255,0.05)' } }}>
+                  Reservations
+                </Button>
+                <Button component={Link} to="/admin/users" startIcon={<PeopleIcon />}
+                  sx={{ color: 'text.secondary', '&:hover': { color: 'white', bgcolor: 'rgba(255,255,255,0.05)' } }}>
+                  Users
+                </Button>
+                <Button component={Link} to="/admin/reports" startIcon={<AssessmentIcon />}
+                  sx={{ color: 'text.secondary', '&:hover': { color: 'white', bgcolor: 'rgba(255,255,255,0.05)' } }}>
+                  Reports
+                </Button>
+              </>
+            )}
+          </Box>
+
+          {/* User Section */}
+          {isAuthenticated ? (
+            <>
+              <Button
+                onClick={handleMenu}
+                sx={{
+                  color: 'white', textTransform: 'none', gap: 1,
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: 3, px: 2,
+                  '&:hover': { borderColor: 'primary.main', bgcolor: 'rgba(170,59,255,0.1)' },
+                }}
+              >
+                <Avatar sx={{ width: 28, height: 28, bgcolor: 'primary.main', fontSize: '0.75rem', fontWeight: 700 }}>
+                  {initials}
+                </Avatar>
+                <Typography variant="body2" fontWeight={600}>{displayName}</Typography>
+              </Button>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+                PaperProps={{
+                  sx: { mt: 1.5, minWidth: 200, bgcolor: '#1a1a24', border: '1px solid rgba(255,255,255,0.08)' }
+                }}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              >
+                <MenuItem onClick={() => { handleClose(); navigate('/profile'); }}>
+                  <ListItemIcon><PersonIcon fontSize="small" /></ListItemIcon>
+                  My Profile
+                </MenuItem>
+                <MenuItem onClick={() => { handleClose(); navigate('/my-reservations'); }}>
+                  <ListItemIcon><BookOnlineIcon fontSize="small" /></ListItemIcon>
+                  My Reservations
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={() => { handleClose(); logout(); navigate('/'); }}>
+                  <ListItemIcon><LogoutIcon fontSize="small" color="error" /></ListItemIcon>
+                  <Typography color="error.main">Logout</Typography>
+                </MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <Button variant="contained" startIcon={<LoginIcon />} onClick={login} size="small">
+              Login
+            </Button>
+          )}
+        </Toolbar>
       </Container>
-    </BootstrapNavbar>
+    </AppBar>
   );
 }
 
