@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Form, Button, Card, Spinner, Alert, ProgressBar } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Spinner, Alert, ProgressBar } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import { bundleService } from '../services/bundleService';
 import { reservationService } from '../services/reservationService';
@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthProvider';
 function BookingFlow() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { role } = useAuth();
+  const { isAuthenticated } = useAuth();
   
   const [bundle, setBundle] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,6 +18,9 @@ function BookingFlow() {
   const [passengers, setPassengers] = useState(1);
   const [specialRequests, setSpecialRequests] = useState('');
   
+  const [quoteData, setQuoteData] = useState(null);
+  const [loadingQuote, setLoadingQuote] = useState(false);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -33,13 +36,35 @@ function BookingFlow() {
       });
   }, [id]);
 
-  // If not logged in (mocking with role check)
-  if (role === 'GUEST') {
+  useEffect(() => {
+    if (bundle && isAuthenticated) {
+      updateQuote(passengers);
+    }
+  }, [bundle, passengers, isAuthenticated]);
+
+  const updateQuote = (passengerCount) => {
+    setLoadingQuote(true);
+    const reservationData = {
+      items: [{ bundleId: bundle.idBundle, passengers: passengerCount }]
+    };
+
+    reservationService.quoteReservation(reservationData)
+      .then((data) => {
+        setQuoteData(data);
+        setLoadingQuote(false);
+      })
+      .catch(err => {
+        console.error("Failed to fetch quote", err);
+        setLoadingQuote(false);
+      });
+  };
+
+  if (!isAuthenticated) {
     return (
       <Container className="my-5 text-center py-5 glass-panel">
         <h3 className="mb-4 text-primary">Authentication Required</h3>
-        <p className="text-muted mb-4">You must be logged in as a Client to make a reservation.</p>
-        <Alert variant="info" className="d-inline-block">Please use the 'Mock Auth' dropdown in the Navbar to switch to 'Client'.</Alert>
+        <p className="text-muted mb-4">You must be logged in to make a reservation.</p>
+        <Button variant="primary" onClick={() => navigate('/')}>Back to Catalog</Button>
       </Container>
     );
   }
@@ -47,22 +72,9 @@ function BookingFlow() {
   if (loading) return <Container className="text-center my-5 py-5"><Spinner animation="border" variant="primary" /></Container>;
   if (error || !bundle) return <Container className="my-5"><Alert variant="danger">{error || "Package not found"}</Alert></Container>;
 
-  // Business Rules for Pricing
-  const basePrice = bundle.priceBundle * passengers;
-  const groupDiscountPercentage = passengers >= 4 ? 0.10 : 0; // 10% discount for >= 4 people
-  const groupDiscountAmount = basePrice * groupDiscountPercentage;
-  
-  // Mocking frequent client discount (e.g. 5%)
-  const isFrequentClient = true; // In a real app, check user profile
-  const frequentDiscountPercentage = isFrequentClient ? 0.05 : 0;
-  const frequentDiscountAmount = basePrice * frequentDiscountPercentage;
-
-  const totalDiscount = groupDiscountAmount + frequentDiscountAmount;
-  const finalPrice = Math.max(0, basePrice - totalDiscount);
-
   const handleNextStep = () => {
-    if (step === 1 && (passengers < 1 || passengers > bundle.amountBundle)) {
-      alert(`Please select between 1 and ${bundle.amountBundle} passengers.`);
+    if (step === 1 && (passengers < 1 || passengers > bundle.availableSlotsBundle)) {
+      alert(`Please select between 1 and ${bundle.availableSlotsBundle} passengers.`);
       return;
     }
     setStep(step + 1);
@@ -71,7 +83,6 @@ function BookingFlow() {
   const handleConfirmReservation = () => {
     setIsSubmitting(true);
     
-    // Construct payload based on expected backend structure
     const reservationData = {
       items: [
         {
@@ -85,14 +96,14 @@ function BookingFlow() {
       .then((data) => {
         setIsSubmitting(false);
         if (data && data.generatedReservationIds && data.generatedReservationIds.length > 0) {
-          navigate(`/payment/${data.generatedReservationIds[0]}`, { state: { amount: finalPrice, bundleName: bundle.nameBundle } });
+          navigate(`/payment/${data.generatedReservationIds[0]}`, { state: { amount: quoteData?.finalTotal || 0, bundleName: bundle.nameBundle } });
         } else {
           setSuccess(true);
         }
       })
       .catch(err => {
         console.error(err);
-        alert('Failed to create reservation. Please try again.');
+        alert(err.response?.data?.message || 'Failed to create reservation. Please try again.');
         setIsSubmitting(false);
       });
   };
@@ -141,10 +152,10 @@ function BookingFlow() {
                       onClick={() => setPassengers(Math.max(1, passengers - 1))} disabled={passengers <= 1}>-</Button>
                     <span className="fs-4 fw-bold">{passengers}</span>
                     <Button variant="outline-primary" className="rounded-circle" style={{ width: '40px', height: '40px' }}
-                      onClick={() => setPassengers(Math.min(bundle.amountBundle, passengers + 1))} disabled={passengers >= bundle.amountBundle}>+</Button>
+                      onClick={() => setPassengers(Math.min(bundle.availableSlotsBundle, passengers + 1))} disabled={passengers >= bundle.availableSlotsBundle}>+</Button>
                   </div>
                   <Form.Text className="text-muted">
-                    Available spots: {bundle.amountBundle}
+                    Available spots: {bundle.availableSlotsBundle}
                   </Form.Text>
                 </Form.Group>
 
@@ -160,8 +171,8 @@ function BookingFlow() {
                   />
                 </Form.Group>
 
-                <Button className="btn-premium w-100" onClick={handleNextStep}>
-                  Continue to Summary
+                <Button className="btn-premium w-100" onClick={handleNextStep} disabled={loadingQuote}>
+                  {loadingQuote ? <Spinner size="sm" /> : 'Continue to Summary'}
                 </Button>
               </div>
             )}
@@ -182,7 +193,7 @@ function BookingFlow() {
                   <Button className="btn-secondary me-3" onClick={() => setStep(1)} disabled={isSubmitting}>
                     Go Back
                   </Button>
-                  <Button className="btn-premium" onClick={handleConfirmReservation} disabled={isSubmitting}>
+                  <Button className="btn-premium" onClick={handleConfirmReservation} disabled={isSubmitting || loadingQuote}>
                     {isSubmitting ? <><Spinner size="sm" className="me-2"/> Processing...</> : 'Confirm Reservation'}
                   </Button>
                 </div>
@@ -205,29 +216,28 @@ function BookingFlow() {
               <span className="fw-bold">{passengers} Person(s)</span>
             </div>
 
-            <div className="d-flex justify-content-between mb-2 text-muted">
-              <span>Base Price ({passengers}x)</span>
-              <span>${basePrice.toLocaleString()}</span>
-            </div>
+            {loadingQuote ? (
+              <div className="text-center py-4"><Spinner animation="border" variant="primary" size="sm" /></div>
+            ) : (
+              <>
+                <div className="d-flex justify-content-between mb-2 text-muted">
+                  <span>Base Price ({passengers}x)</span>
+                  <span>${quoteData?.subtotal?.toLocaleString() || (bundle.priceBundle * passengers).toLocaleString()}</span>
+                </div>
 
-            {groupDiscountAmount > 0 && (
-              <div className="d-flex justify-content-between mb-2 text-success small">
-                <span>Group Discount (10%)</span>
-                <span>-${groupDiscountAmount.toLocaleString()}</span>
-              </div>
+                {quoteData && quoteData.totalDiscount > 0 && (
+                  <div className="d-flex justify-content-between mb-3 text-success small border-bottom pb-3">
+                    <span>Applied Discounts</span>
+                    <span>-${quoteData.totalDiscount.toLocaleString()}</span>
+                  </div>
+                )}
+
+                <div className="d-flex justify-content-between mt-3 pt-2">
+                  <span className="fw-bold text-uppercase">Total Due</span>
+                  <span className="fw-bold fs-4 text-primary">${quoteData?.finalTotal?.toLocaleString() || (bundle.priceBundle * passengers).toLocaleString()}</span>
+                </div>
+              </>
             )}
-
-            {frequentDiscountAmount > 0 && (
-              <div className="d-flex justify-content-between mb-3 text-success small border-bottom pb-3">
-                <span>Frequent Client (5%)</span>
-                <span>-${frequentDiscountAmount.toLocaleString()}</span>
-              </div>
-            )}
-
-            <div className="d-flex justify-content-between mt-3 pt-2">
-              <span className="fw-bold text-uppercase">Total Due</span>
-              <span className="fw-bold fs-4 text-primary">${finalPrice.toLocaleString()}</span>
-            </div>
           </div>
         </Col>
       </Row>

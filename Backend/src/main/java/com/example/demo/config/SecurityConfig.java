@@ -25,7 +25,13 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults()) // check front problems 36 05 2026
                 .csrf(csrf -> csrf.disable()) // same as comment from above
                 .authorizeHttpRequests(auth -> auth
+                        // Public endpoints — catalog and package details
                         .requestMatchers("/public/**").permitAll()
+                        .requestMatchers("/api/v1/bundle").permitAll()
+                        .requestMatchers("/api/v1/bundle/search").permitAll()
+                        .requestMatchers("/api/v1/bundle/{id}").permitAll()
+                        .requestMatchers("/api/v1/bundle/sort/**").permitAll()
+                        // Everything else requires authentication
                         .requestMatchers("/api/v1/**").authenticated()
                         .anyRequest().authenticated()
                 )

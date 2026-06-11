@@ -2,6 +2,16 @@ import api from './api';
 
 export const reservationService = {
     // E4: Create Reservation (Cart)
+    quoteReservation: async (reservationData) => {
+        try {
+            const response = await api.post('/reservations/quote', reservationData);
+            return response.data;
+        } catch (error) {
+            console.error("Error quoting reservation:", error);
+            throw error;
+        }
+    },
+
     createReservation: async (reservationData) => {
         try {
             // Note: backend endpoint is /reservations/cart expecting ReservationRequestDTO

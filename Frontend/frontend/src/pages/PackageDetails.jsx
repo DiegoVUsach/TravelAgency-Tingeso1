@@ -73,10 +73,10 @@ function PackageDetails() {
         <Col lg={7} className="mb-4">
           <div style={{ borderRadius: 'var(--border-radius-lg)', overflow: 'hidden', boxShadow: 'var(--shadow-md)', position: 'relative' }}>
             <div className="premium-badge" style={{ fontSize: '1rem', padding: '10px 20px' }}>
-              {bundle.experience || 'PREMIUM'}
+              {bundle.tipoExperienciaBundle || 'PREMIUM'}
             </div>
             <img 
-              src={getImageUrl(bundle.experience)} 
+              src={getImageUrl(bundle.tipoExperienciaBundle)} 
               alt={bundle.nameBundle} 
               style={{ width: '100%', height: '500px', objectFit: 'cover' }}
             />
@@ -102,7 +102,7 @@ function PackageDetails() {
             <div className="mb-4 flex-grow-1">
               <h5 className="mb-3">About this experience</h5>
               <p style={{ lineHeight: '1.8', color: 'var(--text-muted)' }}>
-                {bundle.descriptionBundle}
+                {bundle.descBundle}
               </p>
             </div>
 
@@ -110,12 +110,12 @@ function PackageDetails() {
               <Row>
                 <Col xs={6}>
                   <p className="text-muted small mb-1">Available Spots</p>
-                  <p className="fw-bold fs-5">{bundle.amountBundle}</p>
+                  <p className="fw-bold fs-5">{bundle.availableSlotsBundle}</p>
                 </Col>
                 <Col xs={6}>
                   <p className="text-muted small mb-1">Dates</p>
                   <p className="fw-bold">
-                    {new Date(bundle.departureBundle).toLocaleDateString()} - {new Date(bundle.arrivalBundle).toLocaleDateString()}
+                    {new Date(bundle.startDateBundle).toLocaleDateString()} - {new Date(bundle.endDateBundle).toLocaleDateString()}
                   </p>
                 </Col>
               </Row>

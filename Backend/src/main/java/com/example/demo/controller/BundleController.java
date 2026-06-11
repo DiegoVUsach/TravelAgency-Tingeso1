@@ -26,6 +26,12 @@ public class BundleController {
         return ResponseEntity.ok(bundles);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<BundleEntity> getBundleById(@PathVariable Long id) {
+        BundleEntity bundle = bundleService.getBundleById(id);
+        return ResponseEntity.ok(bundle);
+    }
+
     @GetMapping("/sort/greaterThan/{price}")
     public List<BundleEntity> findByPriceBundleGreaterThan(@PathVariable("price") int price) {
         return bundleService.findByPriceBundleGreaterThan(price);
@@ -33,8 +39,9 @@ public class BundleController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public BundleEntity saveBundle(@RequestBody BundleEntity bundleEntity) {
-        return bundleService.saveBundle(bundleEntity);
+    public ResponseEntity<BundleEntity> saveBundle(@RequestBody BundleEntity bundleEntity) {
+        BundleEntity saved = bundleService.saveBundle(bundleEntity);
+        return ResponseEntity.ok(saved);
     }
 
     @DeleteMapping("/{id}")
@@ -46,8 +53,9 @@ public class BundleController {
 
     @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping("/{id}")
-    public BundleEntity updateBundle(@PathVariable Long id, @RequestBody BundleEntity bundleEntity) {
-        return bundleService.updateBundle(id, bundleEntity);
+    public ResponseEntity<BundleEntity> updateBundle(@PathVariable Long id, @RequestBody BundleEntity bundleEntity) {
+        BundleEntity updated = bundleService.updateBundle(id, bundleEntity);
+        return ResponseEntity.ok(updated);
     }
 
     // E3 method, for bundle search

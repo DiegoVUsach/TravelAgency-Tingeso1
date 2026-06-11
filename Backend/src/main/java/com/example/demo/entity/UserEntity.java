@@ -3,6 +3,8 @@ package com.example.demo.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "users")
 @Data
@@ -24,6 +26,12 @@ public class UserEntity {
     private String nationality;
 
     @Column(nullable = false)
+    private String role = "CLIENT"; // CLIENT or ADMIN
+
+    @Column(nullable = false)
     private boolean active = true;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
 
 }

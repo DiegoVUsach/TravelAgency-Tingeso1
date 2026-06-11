@@ -10,7 +10,7 @@ function BundleCard({ bundle }) {
           📍 {bundle.destinyBundle}
         </Card.Subtitle>
         <Card.Text>
-          {bundle.descriptionBundle}
+          {bundle.descBundle}
         </Card.Text>
         <div className="d-flex justify-content-between align-items-center mt-3">
           <h5 className="text-primary mb-0">${bundle.priceBundle.toLocaleString()} CLP</h5>
@@ -20,7 +20,7 @@ function BundleCard({ bundle }) {
         </div>
       </Card.Body>
       <Card.Footer className="bg-white border-top-0">
-        <Button variant="outline-primary" className="w-100" disabled={bundle.stateBundle !== 'AVAILABLE'}>
+        <Button variant="outline-primary" className="w-100" onClick={() => window.location.href=`/package/${bundle.idBundle}`}>
           View Details / Book
         </Button>
       </Card.Footer>

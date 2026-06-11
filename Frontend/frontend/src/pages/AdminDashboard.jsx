@@ -86,7 +86,7 @@ function AdminDashboard() {
                   <td className="px-4 fw-bold">{bundle.nameBundle}</td>
                   <td className="px-4 text-muted">{bundle.destinyBundle}</td>
                   <td className="px-4">${bundle.priceBundle.toLocaleString()}</td>
-                  <td className="px-4">{bundle.amountBundle}</td>
+                  <td className="px-4">{bundle.availableSlotsBundle}</td>
                   <td className="px-4">
                     <Badge bg={bundle.stateBundle === 'AVAILABLE' ? 'success' : 'secondary'}>
                       {bundle.stateBundle}

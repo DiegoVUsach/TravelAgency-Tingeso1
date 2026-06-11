@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthProvider';
 
 function Navbar() {
-  const { isAuthenticated, user, hasRole, login, logout } = useAuth();
+  const { isAuthenticated, user, localUser, hasRole, login, logout } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -17,12 +17,16 @@ function Navbar() {
             <Nav.Link as={Link} to="/">Catalog</Nav.Link>
             
             {isAuthenticated && hasRole('USER') && (
-              <Nav.Link as={Link} to="/my-reservations">My Reservations</Nav.Link>
+              <>
+                <Nav.Link as={Link} to="/my-reservations">My Reservations</Nav.Link>
+                <Nav.Link as={Link} to="/profile">My Profile</Nav.Link>
+              </>
             )}
             
             {isAuthenticated && hasRole('ADMIN') && (
               <>
-                <Nav.Link as={Link} to="/admin/dashboard">Admin Dashboard</Nav.Link>
+                <Nav.Link as={Link} to="/admin/dashboard">Packages</Nav.Link>
+                <Nav.Link as={Link} to="/admin/users">Users</Nav.Link>
                 <Nav.Link as={Link} to="/admin/reports">Reports</Nav.Link>
               </>
             )}
@@ -32,7 +36,7 @@ function Navbar() {
             {isAuthenticated ? (
               <>
                 <BootstrapNavbar.Text className="text-light me-3">
-                  Signed in as: <strong>{user?.firstName || user?.username || 'User'}</strong>
+                  Signed in as: <strong>{localUser?.fullName || user?.firstName || user?.username || 'User'}</strong>
                 </BootstrapNavbar.Text>
                 <Button variant="outline-light" size="sm" onClick={() => { logout(); navigate('/'); }}>
                   Logout

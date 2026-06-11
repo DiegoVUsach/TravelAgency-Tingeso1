@@ -13,14 +13,14 @@ function AdminPackageForm() {
   const [formData, setFormData] = useState({
     nameBundle: '',
     destinyBundle: '',
-    descriptionBundle: '',
+    descBundle: '',
     priceBundle: '',
-    amountBundle: '',
-    departureBundle: '',
-    arrivalBundle: '',
+    availableSlotsBundle: '',
+    startDateBundle: '',
+    endDateBundle: '',
     durationBundle: '',
     stateBundle: 'AVAILABLE',
-    experience: 'RELAX'
+    tipoExperienciaBundle: 'RELAX'
   });
 
   const [loading, setLoading] = useState(isEditMode);
@@ -34,8 +34,8 @@ function AdminPackageForm() {
           // Format dates to YYYY-MM-DD for input type="date"
           const formattedData = {
             ...data,
-            departureBundle: data.departureBundle ? data.departureBundle.split('T')[0] : '',
-            arrivalBundle: data.arrivalBundle ? data.arrivalBundle.split('T')[0] : ''
+            startDateBundle: data.startDateBundle ? data.startDateBundle.split('T')[0] : '',
+            endDateBundle: data.endDateBundle ? data.endDateBundle.split('T')[0] : ''
           };
           setFormData(formattedData);
           setLoading(false);
@@ -57,15 +57,15 @@ function AdminPackageForm() {
       setError("Price must be greater than zero.");
       return false;
     }
-    if (Number(formData.amountBundle) <= 0) {
+    if (Number(formData.availableSlotsBundle) <= 0) {
       setError("Total spots must be greater than zero.");
       return false;
     }
-    if (new Date(formData.arrivalBundle) <= new Date(formData.departureBundle)) {
+    if (new Date(formData.endDateBundle) <= new Date(formData.startDateBundle)) {
       setError("Arrival date must be after departure date.");
       return false;
     }
-    if (formData.stateBundle === 'AVAILABLE' && Number(formData.amountBundle) === 0) {
+    if (formData.stateBundle === 'AVAILABLE' && Number(formData.availableSlotsBundle) === 0) {
       setError("Cannot publish as available if there are no spots.");
       return false;
     }
@@ -83,7 +83,7 @@ function AdminPackageForm() {
     const payload = {
       ...formData,
       priceBundle: Number(formData.priceBundle),
-      amountBundle: Number(formData.amountBundle),
+      availableSlotsBundle: Number(formData.availableSlotsBundle),
       durationBundle: Number(formData.durationBundle)
     };
 
@@ -96,7 +96,7 @@ function AdminPackageForm() {
         navigate('/admin/dashboard');
       })
       .catch(err => {
-        setError('Failed to save package. Please try again.');
+        setError(err.response?.data?.message || 'Failed to save package. Please try again.');
         setSaving(false);
       });
   };
@@ -141,7 +141,7 @@ function AdminPackageForm() {
 
           <Form.Group className="mb-3">
             <Form.Label className="fw-bold">Description</Form.Label>
-            <Form.Control required as="textarea" rows={4} name="descriptionBundle" value={formData.descriptionBundle} onChange={handleInputChange} className="premium-input" />
+            <Form.Control required as="textarea" rows={4} name="descBundle" value={formData.descBundle} onChange={handleInputChange} className="premium-input" />
           </Form.Group>
 
           <Row>
@@ -154,7 +154,7 @@ function AdminPackageForm() {
             <Col md={4}>
               <Form.Group className="mb-3">
                 <Form.Label className="fw-bold">Total Spots</Form.Label>
-                <Form.Control required type="number" min="1" name="amountBundle" value={formData.amountBundle} onChange={handleInputChange} className="premium-input" />
+                <Form.Control required type="number" min="1" name="availableSlotsBundle" value={formData.availableSlotsBundle} onChange={handleInputChange} className="premium-input" />
               </Form.Group>
             </Col>
             <Col md={4}>
@@ -169,13 +169,13 @@ function AdminPackageForm() {
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label className="fw-bold">Departure Date</Form.Label>
-                <Form.Control required type="date" name="departureBundle" value={formData.departureBundle} onChange={handleInputChange} className="premium-input" />
+                <Form.Control required type="date" name="startDateBundle" value={formData.startDateBundle} onChange={handleInputChange} className="premium-input" />
               </Form.Group>
             </Col>
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label className="fw-bold">Arrival Date</Form.Label>
-                <Form.Control required type="date" name="arrivalBundle" value={formData.arrivalBundle} onChange={handleInputChange} className="premium-input" />
+                <Form.Control required type="date" name="endDateBundle" value={formData.endDateBundle} onChange={handleInputChange} className="premium-input" />
               </Form.Group>
             </Col>
           </Row>
@@ -184,7 +184,7 @@ function AdminPackageForm() {
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label className="fw-bold">Experience Type</Form.Label>
-                <Form.Select required name="experience" value={formData.experience || 'RELAX'} onChange={handleInputChange} className="premium-input">
+                <Form.Select required name="tipoExperienciaBundle" value={formData.tipoExperienciaBundle || 'RELAX'} onChange={handleInputChange} className="premium-input">
                   <option value="RELAX">Relax</option>
                   <option value="ADVENTURE">Adventure</option>
                   <option value="CULTURAL">Cultural</option>
@@ -200,8 +200,7 @@ function AdminPackageForm() {
                 <Form.Select required name="stateBundle" value={formData.stateBundle} onChange={handleInputChange} className="premium-input">
                   <option value="AVAILABLE">Available</option>
                   <option value="SOLD_OUT">Sold Out</option>
-                  <option value="NOT_AVAILABLE">Not Available / Draft</option>
-                  <option value="CANCELLED">Cancelled</option>
+                  <option value="CANCELED">Canceled</option>
                 </Form.Select>
               </Form.Group>
             </Col>

@@ -41,8 +41,16 @@ public class ReservationController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-
-    // E6
+    @PostMapping("/quote")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<ReservationResponseDTO> quoteReservation(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestBody ReservationRequestDTO request) {
+        
+        String email = jwt.getClaimAsString("email");
+        ReservationResponseDTO quote = reservationService.calculateQuote(request, email);
+        return ResponseEntity.ok(quote);
+    }    // E6
     @GetMapping("/my-reservations")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<List<ReservationEntity>> getMyReservations(@AuthenticationPrincipal Jwt jwt) {

@@ -1,28 +1,48 @@
-import React, { createContext, useState, useEffect, useContext, useRef } from 'react'; // <-- attemp to fix front load issue
+import React, { createContext, useState, useEffect, useContext, useRef, useCallback } from 'react';
 import keycloak from '../services/keycloak';
+import { userService } from '../services/userService';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null); // Keycloak user
+  const [localUser, setLocalUser] = useState(null); // Backend DB user profile
   const [roles, setRoles] = useState([]);
 
-  const isRun = useRef(false); // <--  attemp to fix front load issue
+  const isRun = useRef(false);
+
+  const refreshProfile = useCallback(async () => {
+    if (isAuthenticated) {
+      try {
+        const profile = await userService.getMyProfile();
+        setLocalUser(profile);
+      } catch (err) {
+        console.error("Failed to fetch local user profile:", err);
+      }
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
-    if (isRun.current) return; // <-- attemp to fix front load issue, stops 2nd attempt
+    if (isRun.current) return;
     isRun.current = true;
 
     keycloak.init({ onLoad: 'check-sso', checkLoginIframe: false })
-      .then((authenticated) => {
+      .then(async (authenticated) => {
         setIsAuthenticated(authenticated);
         if (authenticated) {
           setRoles(keycloak.realmAccess?.roles || []);
-          keycloak.loadUserProfile().then((profile) => {
+          try {
+            const profile = await keycloak.loadUserProfile();
             setUser(profile);
-          });
+            
+            // Sync user with our backend
+            const syncedUser = await userService.syncUser();
+            setLocalUser(syncedUser);
+          } catch (err) {
+             console.error("Error loading profile or syncing user", err);
+          }
         }
         setIsInitialized(true);
       })
@@ -37,7 +57,6 @@ export const AuthProvider = ({ children }) => {
   const hasRole = (role) => roles.includes(role);
 
   // We expose "role" as a computed property for easier mock compatibility 
-  // with previous code, but typically you'd just check hasRole('ADMIN')
   const computedRole = roles.includes('ADMIN') ? 'ADMIN' : (isAuthenticated ? 'CLIENT' : 'GUEST');
 
   if (!isInitialized) {
@@ -45,7 +64,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, roles, login, logout, hasRole, role: computedRole }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, localUser, roles, login, logout, hasRole, role: computedRole, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

@@ -28,6 +28,85 @@ public class ReservationService {
     private final DiscountConfigRepository discountConfigRepository;
     private final UserService userService;
 
+    public ReservationResponseDTO calculateQuote(ReservationRequestDTO request, String email) {
+        if (request.getItems() == null || request.getItems().isEmpty()) {
+            throw new IllegalArgumentException("The cart cannot be empty.");
+        }
+
+        double globalDiscount = 0.0;
+        int multiPackageThreshold = getConfigThreshold("MULTIPLE_PACKAGES", 2);
+        double multiPackageDiscount = getConfigValue("MULTIPLE_PACKAGES", 0.05);
+        int frequentClientThreshold = getConfigThreshold("FREQUENT_CLIENT", 3);
+        double frequentClientDiscount = getConfigValue("FREQUENT_CLIENT", 0.05);
+        int volumeThreshold = getConfigThreshold("VOLUME_DISCOUNT", 4);
+        double volumeDiscount = getConfigValue("VOLUME_DISCOUNT", 0.10);
+        double maxDiscountLimit = getConfigValue("MAX_DISCOUNT_LIMIT", 0.20);
+
+        if (request.getItems().size() >= multiPackageThreshold) {
+            globalDiscount += multiPackageDiscount;
+        }
+
+        long paidReservations = reservationRepository.countByUser_EmailAndState(email, ReservationState.CONFIRMED);
+        if (paidReservations >= frequentClientThreshold) {
+            globalDiscount += frequentClientDiscount;
+        }
+
+        int cartSubtotal = 0;
+        int cartFinalTotal = 0;
+
+        for (CartItemDTO item : request.getItems()) {
+            if (item.getPassengers() <= 0) {
+                throw new IllegalArgumentException("Passengers must be greater than 0.");
+            }
+
+            BundleEntity bundle = bundleRepository.findById(item.getBundleId())
+                    .orElseThrow(() -> new RuntimeException("Bundle not found with ID: " + item.getBundleId()));
+
+            if (bundle.getStateBundle() == BundleState.CANCELED || bundle.getStateBundle() == BundleState.EXPIRED || bundle.getStateBundle() == BundleState.SOLD_OUT) {
+                throw new IllegalStateException("Cannot reserve bundle: " + bundle.getNameBundle());
+            }
+
+            LocalDate today = LocalDate.now();
+            if (today.isBefore(bundle.getStartDateBundle()) || today.isAfter(bundle.getEndDateBundle())) {
+                throw new IllegalStateException("Bundle is not active during this date: " + bundle.getNameBundle());
+            }
+
+            if (bundle.getAvailableSlotsBundle() < item.getPassengers()) {
+                throw new IllegalStateException("Not enough available slots for bundle: " + bundle.getNameBundle());
+            }
+
+            double itemDiscount = globalDiscount;
+            if (item.getPassengers() >= volumeThreshold) {
+                itemDiscount += volumeDiscount;
+            }
+
+            if (bundle.getPromoStartDate() != null && bundle.getPromoEndDate() != null) {
+                boolean isPromoActive = !today.isBefore(bundle.getPromoStartDate()) && !today.isAfter(bundle.getPromoEndDate());
+                if (isPromoActive) {
+                    itemDiscount += bundle.getPromoDiscountPercent();
+                }
+            }
+
+            if (itemDiscount > maxDiscountLimit) {
+                itemDiscount = maxDiscountLimit;
+            }
+
+            int basePrice = bundle.getPriceBundle() * item.getPassengers();
+            int finalPrice = (int) (basePrice * (1.0 - itemDiscount));
+            finalPrice = Math.max(0, finalPrice);
+
+            cartSubtotal += basePrice;
+            cartFinalTotal += finalPrice;
+        }
+
+        ReservationResponseDTO response = new ReservationResponseDTO();
+        response.setMessage("Quote calculated successfully.");
+        response.setSubtotal(cartSubtotal);
+        response.setFinalTotal(cartFinalTotal);
+        response.setTotalDiscount(cartSubtotal - cartFinalTotal);
+        return response;
+    }
+
     @Transactional
     public ReservationResponseDTO processCartReservations(ReservationRequestDTO request, String email) {
 
@@ -35,7 +114,7 @@ public class ReservationService {
             throw new IllegalArgumentException("The cart cannot be empty.");
         }
 
-        UserEntity user = userService.getUserProfile(email);
+        UserEntity user = userService.getUserEntity(email);
         double globalDiscount = 0.0;
 
         // Fetch dynamic configurations from the database

@@ -6,8 +6,10 @@ import Home from './pages/Home';
 import BookingFlow from './pages/BookingFlow';
 import Payment from './pages/Payment';
 import MyReservations from './pages/MyReservations';
+import MyProfile from './pages/MyProfile';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminPackageForm from './pages/AdminPackageForm';
+import AdminUsers from './pages/AdminUsers';
 import PackageDetails from './pages/PackageDetails';
 import AdminReports from './pages/AdminReports';
 
@@ -52,6 +54,11 @@ function App() {
                 <MyReservations />
               </ProtectedRoute>
             } />
+            <Route path="/profile" element={
+              <ProtectedRoute requiredRole="USER">
+                <MyProfile />
+              </ProtectedRoute>
+            } />
 
             {/* Admin Routes */}
             <Route path="/admin/dashboard" element={
@@ -72,6 +79,11 @@ function App() {
             <Route path="/admin/reports" element={
               <ProtectedRoute requiredRole="ADMIN">
                 <AdminReports />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/users" element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <AdminUsers />
               </ProtectedRoute>
             } />
 
