@@ -23,14 +23,14 @@ function AdminDashboard() {
     setLoading(true);
     bundleService.getAllBundles()
       .then(data => { setBundles(data); setLoading(false); })
-      .catch(() => { setError('Failed to fetch packages.'); setLoading(false); });
+      .catch(() => { setError('No se pudieron obtener los paquetes.'); setLoading(false); });
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this package?')) {
+    if (window.confirm('¿Estás seguro de que quieres eliminar este paquete?')) {
       bundleService.deleteBundle(id)
         .then(() => fetchBundles())
-        .catch(() => alert('Failed to delete package.'));
+        .catch(() => alert('No se pudo eliminar el paquete.'));
     }
   };
 
@@ -38,8 +38,8 @@ function AdminDashboard() {
     return (
       <Container maxWidth="sm" sx={{ py: 10, textAlign: 'center' }}>
         <Paper sx={{ p: 5, borderRadius: 3 }}>
-          <Typography variant="h5" color="error" sx={{ mb: 2 }}>Access Denied</Typography>
-          <Typography color="text.secondary">You do not have permission to view this page.</Typography>
+          <Typography variant="h5" color="error" sx={{ mb: 2 }}>Acceso Denegado</Typography>
+          <Typography color="text.secondary">No tienes permiso para ver esta página.</Typography>
         </Paper>
       </Container>
     );
@@ -49,11 +49,11 @@ function AdminDashboard() {
     <Container maxWidth="xl" sx={{ py: 4 }} className="animate-fade-up">
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Box>
-          <Typography variant="h4">Admin Dashboard</Typography>
-          <Typography variant="body2" color="text.secondary">Manage your travel packages and catalog.</Typography>
+          <Typography variant="h4">Panel de Administración</Typography>
+          <Typography variant="body2" color="text.secondary">Gestiona tus paquetes de viaje y catálogo.</Typography>
         </Box>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => navigate('/admin/package/new')}>
-          Create Package
+          Crear Paquete
         </Button>
       </Box>
 
@@ -66,12 +66,12 @@ function AdminDashboard() {
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
-                <TableCell>Package Name</TableCell>
-                <TableCell>Destination</TableCell>
-                <TableCell>Price (CLP)</TableCell>
-                <TableCell>Spots</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="right">Actions</TableCell>
+                <TableCell>Nombre del Paquete</TableCell>
+                <TableCell>Destino</TableCell>
+                <TableCell>Precio (CLP)</TableCell>
+                <TableCell>Cupos</TableCell>
+                <TableCell>Estado</TableCell>
+                <TableCell align="right">Acciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -99,7 +99,7 @@ function AdminDashboard() {
               {bundles.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={7} sx={{ textAlign: 'center', py: 6, color: 'text.secondary' }}>
-                    No packages found. Create one to get started.
+                    No se encontraron paquetes. Crea uno para comenzar.
                   </TableCell>
                 </TableRow>
               )}

@@ -61,11 +61,11 @@ function BundleCard({ bundle }) {
         <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <AccessTimeIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-            <Typography variant="caption" color="text.secondary">{bundle.durationBundle} days</Typography>
+            <Typography variant="caption" color="text.secondary">{bundle.durationBundle} días</Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <GroupIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-            <Typography variant="caption" color="text.secondary">{bundle.availableSlotsBundle} spots</Typography>
+            <Typography variant="caption" color="text.secondary">{bundle.availableSlotsBundle} cupos</Typography>
           </Box>
         </Box>
 
@@ -74,7 +74,7 @@ function BundleCard({ bundle }) {
             ${bundle.priceBundle?.toLocaleString()} <Typography component="span" variant="caption" color="text.secondary">CLP</Typography>
           </Typography>
           <Button variant="outlined" size="small" sx={{ borderRadius: 2 }}>
-            View Details
+            Ver Detalles
           </Button>
         </Box>
       </CardContent>

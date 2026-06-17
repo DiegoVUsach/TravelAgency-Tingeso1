@@ -22,7 +22,7 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     return <Navigate to="/" />;
   }
 
-  if (requiredRole && !hasRole(requiredRole)) {
+  if (requiredRole && !hasRole(requiredRole) && !hasRole('ADMIN')) {
     return <Navigate to="/" />;
   }
 
@@ -43,22 +43,22 @@ function App() {
             
             {/* Client Routes */}
             <Route path="/book/:id" element={
-              <ProtectedRoute requiredRole="USER">
+              <ProtectedRoute>
                 <BookingFlow />
               </ProtectedRoute>
             } />
             <Route path="/payment/:reservationId" element={
-              <ProtectedRoute requiredRole="USER">
+              <ProtectedRoute>
                 <Payment />
               </ProtectedRoute>
             } />
             <Route path="/my-reservations" element={
-              <ProtectedRoute requiredRole="USER">
+              <ProtectedRoute>
                 <MyReservations />
               </ProtectedRoute>
             } />
             <Route path="/profile" element={
-              <ProtectedRoute requiredRole="USER">
+              <ProtectedRoute>
                 <MyProfile />
               </ProtectedRoute>
             } />

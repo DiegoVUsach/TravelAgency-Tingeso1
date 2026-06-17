@@ -39,23 +39,23 @@ function MyProfile() {
     try {
       await userService.updateMyProfile(formData);
       await refreshProfile();
-      setMessage({ type: 'success', text: 'Profile updated successfully!' });
+      setMessage({ type: 'success', text: '¡Perfil actualizado exitosamente!' });
     } catch {
-      setMessage({ type: 'error', text: 'Failed to update profile.' });
+      setMessage({ type: 'error', text: 'No se pudo actualizar el perfil.' });
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteAccount = async () => {
-    if (window.confirm('Are you sure you want to deactivate your account?')) {
+    if (window.confirm('¿Estás seguro de que quieres desactivar tu cuenta?')) {
       try {
         await userService.deleteMyAccount();
-        alert('Account deactivated.');
+        alert('Cuenta desactivada.');
         logout();
         navigate('/');
       } catch {
-        setMessage({ type: 'error', text: 'Failed to deactivate account.' });
+        setMessage({ type: 'error', text: 'No se pudo desactivar la cuenta.' });
       }
     }
   };
@@ -71,28 +71,28 @@ function MyProfile() {
           <Avatar sx={{ width: 64, height: 64, mx: 'auto', mb: 2, bgcolor: 'primary.main', fontSize: '1.5rem', fontWeight: 700 }}>
             {initials}
           </Avatar>
-          <Typography variant="h5">My Profile</Typography>
+          <Typography variant="h5">Mi Perfil</Typography>
         </Box>
 
         {message.text && <Alert severity={message.type} sx={{ mb: 3 }}>{message.text}</Alert>}
 
         <Box component="form" onSubmit={handleSubmit}>
-          <TextField fullWidth label="Email (read-only)" value={localUser.email} disabled sx={{ mb: 2 }} />
-          <TextField fullWidth label="Full Name" name="fullName" value={formData.fullName} onChange={handleInputChange} sx={{ mb: 2 }} />
-          <TextField fullWidth label="Phone" name="phone" value={formData.phone} onChange={handleInputChange} sx={{ mb: 2 }} />
-          <TextField fullWidth label="Identity Document" name="identityDocument" value={formData.identityDocument} onChange={handleInputChange} sx={{ mb: 2 }} />
-          <TextField fullWidth label="Nationality" name="nationality" value={formData.nationality} onChange={handleInputChange} sx={{ mb: 3 }} />
+          <TextField fullWidth label="Email (solo lectura)" value={localUser.email} disabled sx={{ mb: 2 }} />
+          <TextField fullWidth label="Nombre Completo" name="fullName" value={formData.fullName} onChange={handleInputChange} sx={{ mb: 2 }} />
+          <TextField fullWidth label="Teléfono" name="phone" value={formData.phone} onChange={handleInputChange} sx={{ mb: 2 }} />
+          <TextField fullWidth label="Documento de Identidad" name="identityDocument" value={formData.identityDocument} onChange={handleInputChange} sx={{ mb: 2 }} />
+          <TextField fullWidth label="Nacionalidad" name="nationality" value={formData.nationality} onChange={handleInputChange} sx={{ mb: 3 }} />
           <Button fullWidth variant="contained" type="submit" disabled={loading} size="large">
-            {loading ? <CircularProgress size={20} /> : 'Update Profile'}
+            {loading ? <CircularProgress size={20} /> : 'Actualizar Perfil'}
           </Button>
         </Box>
 
         <Divider sx={{ my: 3 }} />
 
         <Box sx={{ textAlign: 'center' }}>
-          <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>Danger Zone</Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>Zona de Peligro</Typography>
           <Button variant="outlined" color="error" size="small" startIcon={<DeleteForeverIcon />} onClick={handleDeleteAccount}>
-            Deactivate Account
+            Desactivar Cuenta
           </Button>
         </Box>
       </Paper>

@@ -2,7 +2,9 @@ Personal notes, do not take as instructions, just a reminder for myself
 TODO:
  - ver que perfil y reservas funcione
  - poblar base de datos con datos de prueba
- - ver tema imagenes frontend
+ - ver tema de descuentos y como agregarlos desde el frontend
+ - junit
+ - todo en español y coherente, falta lo 2do
 Progress
 # BACKEND
 E1 must be done at the end

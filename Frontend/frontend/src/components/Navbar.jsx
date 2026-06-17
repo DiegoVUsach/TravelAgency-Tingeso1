@@ -24,7 +24,7 @@ function Navbar() {
   const handleMenu = (e) => setAnchorEl(e.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
-  const displayName = localUser?.fullName || user?.firstName || user?.username || 'User';
+  const displayName = localUser?.fullName || user?.firstName || user?.username || 'Usuario';
   const initials = displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
 
   return (
@@ -53,7 +53,7 @@ function Navbar() {
               startIcon={<ExploreIcon />}
               sx={{ color: 'text.secondary', '&:hover': { color: 'white', bgcolor: 'rgba(255,255,255,0.05)' } }}
             >
-              Catalog
+              Catálogo
             </Button>
 
             {isAuthenticated && hasRole('USER') && (
@@ -62,7 +62,7 @@ function Navbar() {
                 startIcon={<BookOnlineIcon />}
                 sx={{ color: 'text.secondary', '&:hover': { color: 'white', bgcolor: 'rgba(255,255,255,0.05)' } }}
               >
-                My Reservations
+                Mis Reservas
               </Button>
             )}
 
@@ -70,19 +70,19 @@ function Navbar() {
               <>
                 <Button component={Link} to="/admin/dashboard" startIcon={<DashboardIcon />}
                   sx={{ color: 'text.secondary', '&:hover': { color: 'white', bgcolor: 'rgba(255,255,255,0.05)' } }}>
-                  Packages
+                  Paquetes
                 </Button>
                 <Button component={Link} to="/admin/reservations" startIcon={<ReceiptLongIcon />}
                   sx={{ color: 'text.secondary', '&:hover': { color: 'white', bgcolor: 'rgba(255,255,255,0.05)' } }}>
-                  Reservations
+                  Reservas
                 </Button>
                 <Button component={Link} to="/admin/users" startIcon={<PeopleIcon />}
                   sx={{ color: 'text.secondary', '&:hover': { color: 'white', bgcolor: 'rgba(255,255,255,0.05)' } }}>
-                  Users
+                  Usuarios
                 </Button>
                 <Button component={Link} to="/admin/reports" startIcon={<AssessmentIcon />}
                   sx={{ color: 'text.secondary', '&:hover': { color: 'white', bgcolor: 'rgba(255,255,255,0.05)' } }}>
-                  Reports
+                  Reportes
                 </Button>
               </>
             )}
@@ -117,22 +117,22 @@ function Navbar() {
               >
                 <MenuItem onClick={() => { handleClose(); navigate('/profile'); }}>
                   <ListItemIcon><PersonIcon fontSize="small" /></ListItemIcon>
-                  My Profile
+                  Mi Perfil
                 </MenuItem>
                 <MenuItem onClick={() => { handleClose(); navigate('/my-reservations'); }}>
                   <ListItemIcon><BookOnlineIcon fontSize="small" /></ListItemIcon>
-                  My Reservations
+                  Mis Reservas
                 </MenuItem>
                 <Divider />
                 <MenuItem onClick={() => { handleClose(); logout(); navigate('/'); }}>
                   <ListItemIcon><LogoutIcon fontSize="small" color="error" /></ListItemIcon>
-                  <Typography color="error.main">Logout</Typography>
+                  <Typography color="error.main">Cerrar Sesión</Typography>
                 </MenuItem>
               </Menu>
             </>
           ) : (
             <Button variant="contained" startIcon={<LoginIcon />} onClick={login} size="small">
-              Login
+              Iniciar Sesión
             </Button>
           )}
         </Toolbar>

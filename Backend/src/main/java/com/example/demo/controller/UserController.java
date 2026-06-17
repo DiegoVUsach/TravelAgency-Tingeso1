@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
-@CrossOrigin("*")
+@CrossOrigin(originPatterns = "*")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -31,8 +31,10 @@ public class UserController {
         String givenName = jwt.getClaimAsString("given_name");
         String familyName = jwt.getClaimAsString("family_name");
         String fullName = "";
-        if (givenName != null) fullName = givenName;
-        if (familyName != null) fullName = fullName.isBlank() ? familyName : fullName + " " + familyName;
+        if (givenName != null)
+            fullName = givenName;
+        if (familyName != null)
+            fullName = fullName.isBlank() ? familyName : fullName + " " + familyName;
 
         UserProfileDTO syncedUser = userService.syncUser(email, keycloakId, fullName.isBlank() ? null : fullName);
         return ResponseEntity.ok(syncedUser);

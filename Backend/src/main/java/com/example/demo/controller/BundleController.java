@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/bundle")
-@CrossOrigin("*")
+@CrossOrigin(originPatterns = "*")
 public class BundleController {
 
     @Autowired
@@ -67,12 +67,10 @@ public class BundleController {
             @RequestParam(required = false) Integer duration,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(required = false)ExperienceTypeState experience)
-            {
+            @RequestParam(required = false) ExperienceTypeState experience) {
 
         List<BundleEntity> results = bundleService.searchAvailableBundles(
-                destiny, minPrice, maxPrice, duration, startDate, endDate, experience
-        );
+                destiny, minPrice, maxPrice, duration, startDate, endDate, experience);
 
         return ResponseEntity.ok(results);
     }

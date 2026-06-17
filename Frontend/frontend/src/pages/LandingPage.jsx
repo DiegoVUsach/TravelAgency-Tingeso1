@@ -30,12 +30,12 @@ const experienceImages = {
 const defaultImage = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=800&auto=format&fit=crop';
 
 const categories = [
-  { key: 'RELAX', label: 'Relax', icon: <SpaIcon />, color: '#22c55e' },
-  { key: 'ADVENTURE', label: 'Adventure', icon: <HikingIcon />, color: '#f59e0b' },
+  { key: 'RELAX', label: 'Relajación', icon: <SpaIcon />, color: '#22c55e' },
+  { key: 'ADVENTURE', label: 'Aventura', icon: <HikingIcon />, color: '#f59e0b' },
   { key: 'CULTURAL', label: 'Cultural', icon: <MuseumIcon />, color: '#3b82f6' },
-  { key: 'FAMILY', label: 'Family', icon: <FamilyRestroomIcon />, color: '#ec4899' },
-  { key: 'ROMANTIC', label: 'Romantic', icon: <FavoriteIcon />, color: '#ef4444' },
-  { key: 'BUSINESS', label: 'Business', icon: <BusinessCenterIcon />, color: '#6366f1' },
+  { key: 'FAMILY', label: 'Familiar', icon: <FamilyRestroomIcon />, color: '#ec4899' },
+  { key: 'ROMANTIC', label: 'Romántico', icon: <FavoriteIcon />, color: '#ef4444' },
+  { key: 'BUSINESS', label: 'Negocios', icon: <BusinessCenterIcon />, color: '#6366f1' },
 ];
 
 function LandingPage() {
@@ -133,14 +133,14 @@ function LandingPage() {
           <Box className="animate-fade-up">
             <Chip
               icon={<FlightTakeoffIcon />}
-              label="Discover the world with us"
+              label="Descubre el mundo con nosotros"
               sx={{ mb: 3, bgcolor: 'rgba(170,59,255,0.1)', border: '1px solid rgba(170,59,255,0.3)', color: 'primary.light' }}
             />
             <Typography variant="h1" sx={{ fontSize: { xs: '2.5rem', md: '4rem' }, mb: 2, lineHeight: 1.1 }}>
-              Your Next <span className="gradient-text">Adventure</span><br />Starts Here
+              Tu Próxima <span className="gradient-text">Aventura</span><br />Comienza Aquí
             </Typography>
             <Typography variant="h6" color="text.secondary" sx={{ mb: 5, fontWeight: 400, maxWidth: 600, mx: 'auto' }}>
-              Explore curated travel experiences, book your dream trip, and create memories that last a lifetime.
+              Explora experiencias de viaje curadas, reserva tu viaje soñado y crea recuerdos que durarán toda la vida.
             </Typography>
           </Box>
 
@@ -156,7 +156,7 @@ function LandingPage() {
           >
             <TextField
               fullWidth
-              placeholder="Search packages by name, destination..."
+              placeholder="Buscar paquetes por nombre, destino..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               InputProps={{
@@ -168,7 +168,7 @@ function LandingPage() {
                 endAdornment: (
                   <InputAdornment position="end">
                     <Button type="submit" variant="contained" size="small" sx={{ borderRadius: 2, minWidth: 100 }}>
-                      Search
+                      Buscar
                     </Button>
                   </InputAdornment>
                 ),
@@ -189,10 +189,10 @@ function LandingPage() {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
           <Box>
             <Typography variant="h4" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <LocalOfferIcon color="primary" /> Featured Packages
+              <LocalOfferIcon color="primary" /> Paquetes Destacados
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-              Hot deals and promotions you don't want to miss
+              Ofertas y promociones que no te querrás perder
             </Typography>
           </Box>
           <Box>
@@ -219,10 +219,10 @@ function LandingPage() {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
           <Box>
             <Typography variant="h4" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <AccessTimeIcon color="secondary" /> Upcoming Departures
+              <AccessTimeIcon color="secondary" /> Próximas Salidas
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-              Trips departing soon — book before they're gone!
+              Viajes que salen pronto — ¡reserva antes de que se agoten!
             </Typography>
           </Box>
           <Box>
@@ -247,8 +247,8 @@ function LandingPage() {
       {/* ========== CATEGORIES SECTION ========== */}
       <Container maxWidth="lg" sx={{ py: 8 }}>
         <Box sx={{ textAlign: 'center', mb: 5 }}>
-          <Typography variant="h4" sx={{ mb: 1 }}>Explore by Experience</Typography>
-          <Typography variant="body1" color="text.secondary">Choose your travel style</Typography>
+          <Typography variant="h4" sx={{ mb: 1 }}>Explora por Experiencia</Typography>
+          <Typography variant="body1" color="text.secondary">Elige tu estilo de viaje</Typography>
         </Box>
         <Grid container spacing={3} justifyContent="center" className="stagger-children">
           {categories.map(cat => (
@@ -277,9 +277,9 @@ function LandingPage() {
         borderTop: '1px solid rgba(255,255,255,0.04)',
       }}>
         <Container maxWidth="sm">
-          <Typography variant="h4" sx={{ mb: 2 }}>Ready to Explore?</Typography>
+          <Typography variant="h4" sx={{ mb: 2 }}>¿Listo para Explorar?</Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-            Browse our full catalog of travel packages with advanced filters.
+            Explora nuestro catálogo completo de paquetes de viaje con filtros avanzados.
           </Typography>
           <Button
             variant="contained"
@@ -288,7 +288,7 @@ function LandingPage() {
             onClick={() => navigate('/catalog')}
             sx={{ py: 1.5, px: 5, fontSize: '1rem' }}
           >
-            View All Packages
+            Ver Todos los Paquetes
           </Button>
         </Container>
       </Box>

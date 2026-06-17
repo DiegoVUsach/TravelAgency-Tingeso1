@@ -10,4 +10,5 @@ public class ReservationResponseDTO {
     private Integer totalDiscount;
     private Integer finalTotal;
     private List<Long> generatedReservationIds;
+    private List<DiscountDetailDTO> appliedDiscounts;
 }

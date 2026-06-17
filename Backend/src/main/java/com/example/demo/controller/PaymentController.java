@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/payments")
-@CrossOrigin("*")
+@CrossOrigin(originPatterns = "*")
 @RequiredArgsConstructor
 public class PaymentController {
 
     private final PaymentService paymentService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> processPayment(
             @AuthenticationPrincipal Jwt jwt,
             @RequestBody PaymentRequestDTO request) {
@@ -28,8 +28,7 @@ public class PaymentController {
                 request.getReservationId(),
                 request.getAmount(),
                 request.getPaymentMethod(),
-                callerEmail
-        );
+                callerEmail);
 
         return ResponseEntity.ok(result);
     }

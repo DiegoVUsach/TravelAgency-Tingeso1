@@ -17,7 +17,7 @@ function MyReservations() {
     setLoading(true);
     reservationService.getMyReservations()
       .then(data => { setReservations(data); setLoading(false); })
-      .catch(() => { setError('Could not fetch your reservations.'); setLoading(false); });
+      .catch(() => { setError('No se pudieron obtener tus reservas.'); setLoading(false); });
   };
 
   const handleDownloadReceipt = (id) => {
@@ -25,17 +25,17 @@ function MyReservations() {
       .then(receiptData => {
         const receiptText = `
 ==============================
-   TRAVEL AGENCY RECEIPT
+   RECIBO DE AGENCIA DE VIAJES
 ==============================
-Receipt Code: ${receiptData.receiptCode}
-Issue Date: ${receiptData.issueDate}
-Client Email: ${receiptData.clientEmail}
-Package: ${receiptData.bundleName}
-Passengers: ${receiptData.numberOfPassengers}
-Amount Paid: $${receiptData.totalPaid}
-Status: ${receiptData.status}
+Código de Recibo: ${receiptData.receiptCode}
+Fecha de Emisión: ${receiptData.issueDate}
+Email del Cliente: ${receiptData.clientEmail}
+Paquete: ${receiptData.bundleName}
+Pasajeros: ${receiptData.numberOfPassengers}
+Monto Pagado: $${receiptData.totalPaid}
+Estado: ${receiptData.status}
 ==============================
-Thank you for your purchase!
+¡Gracias por su compra!
         `;
         const blob = new Blob([receiptText], { type: 'text/plain' });
         const url = window.URL.createObjectURL(blob);
@@ -47,7 +47,7 @@ Thank you for your purchase!
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
       })
-      .catch(() => alert('Could not generate receipt. Ensure the reservation is CONFIRMED.'));
+      .catch(() => alert('No se pudo generar el recibo. Asegúrate de que la reserva esté CONFIRMADA.'));
   };
 
   const getStatusColor = (status) => {
@@ -61,8 +61,8 @@ Thank you for your purchase!
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }} className="animate-fade-up">
-      <Typography variant="h4" sx={{ mb: 1 }}>My Reservations</Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>Track your bookings and download receipts.</Typography>
+      <Typography variant="h4" sx={{ mb: 1 }}>Mis Reservas</Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>Sigue tus reservas y descarga los recibos.</Typography>
 
       {loading && <Box sx={{ textAlign: 'center', py: 8 }}><CircularProgress /></Box>}
       {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
@@ -73,18 +73,18 @@ Thank you for your purchase!
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
-                <TableCell>Package</TableCell>
-                <TableCell>Passengers</TableCell>
+                <TableCell>Paquete</TableCell>
+                <TableCell>Pasajeros</TableCell>
                 <TableCell>Total</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="right">Actions</TableCell>
+                <TableCell>Estado</TableCell>
+                <TableCell align="right">Acciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {reservations.map(res => (
                 <TableRow key={res.id} hover>
                   <TableCell sx={{ color: 'text.secondary' }}>#{res.id}</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>{res.bundle?.nameBundle || 'Unknown'}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{res.bundle?.nameBundle || 'Desconocido'}</TableCell>
                   <TableCell>{res.numberOfPassengers}</TableCell>
                   <TableCell>${res.totalAmount?.toLocaleString()}</TableCell>
                   <TableCell>
@@ -96,7 +96,7 @@ Thank you for your purchase!
                         size="small" variant="outlined" startIcon={<DownloadIcon />}
                         onClick={() => handleDownloadReceipt(res.id)}
                       >
-                        Receipt
+                        Recibo
                       </Button>
                     )}
                   </TableCell>
@@ -105,7 +105,7 @@ Thank you for your purchase!
               {reservations.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6} sx={{ textAlign: 'center', py: 6, color: 'text.secondary' }}>
-                    You don't have any reservations yet.
+                    No tienes reservas aún.
                   </TableCell>
                 </TableRow>
               )}

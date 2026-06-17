@@ -22,17 +22,17 @@ function AdminReservations() {
     setLoading(true);
     reservationService.getAllReservations()
       .then(data => { setReservations(data); setLoading(false); })
-      .catch(() => { setError('Could not fetch all reservations.'); setLoading(false); });
+      .catch(() => { setError('No se pudieron obtener todas las reservas.'); setLoading(false); });
   };
 
   const handleMenuOpen = (e, id) => { setAnchorEl(e.currentTarget); setSelectedId(id); };
   const handleMenuClose = () => { setAnchorEl(null); setSelectedId(null); };
 
   const handleStateChange = (newState) => {
-    if (window.confirm(`Change reservation #${selectedId} to ${newState}?`)) {
+    if (window.confirm(`¿Cambiar la reserva #${selectedId} a ${newState}?`)) {
       reservationService.updateReservationState(selectedId, newState)
         .then(() => fetchReservations())
-        .catch(err => alert(err.response?.data?.message || 'Failed to update state.'));
+        .catch(err => alert(err.response?.data?.message || 'No se pudo actualizar el estado.'));
     }
     handleMenuClose();
   };
@@ -50,7 +50,7 @@ function AdminReservations() {
     return (
       <Container maxWidth="sm" sx={{ py: 10, textAlign: 'center' }}>
         <Paper sx={{ p: 5, borderRadius: 3 }}>
-          <Typography variant="h5" color="error">Access Denied</Typography>
+          <Typography variant="h5" color="error">Acceso Denegado</Typography>
         </Paper>
       </Container>
     );
@@ -60,11 +60,11 @@ function AdminReservations() {
     <Container maxWidth="xl" sx={{ py: 4 }} className="animate-fade-up">
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Box>
-          <Typography variant="h4">All Reservations</Typography>
-          <Typography variant="body2" color="text.secondary">Manage system-wide bookings and payments.</Typography>
+          <Typography variant="h4">Todas las Reservas</Typography>
+          <Typography variant="body2" color="text.secondary">Gestiona las reservas y pagos en todo el sistema.</Typography>
         </Box>
         <Button variant="outlined" startIcon={<RefreshIcon />} onClick={fetchReservations} disabled={loading}>
-          Refresh
+          Refrescar
         </Button>
       </Box>
 
@@ -77,12 +77,12 @@ function AdminReservations() {
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
-                <TableCell>Client Email</TableCell>
-                <TableCell>Package</TableCell>
-                <TableCell>Pax</TableCell>
+                <TableCell>Email del Cliente</TableCell>
+                <TableCell>Paquete</TableCell>
+                <TableCell>Pasajeros</TableCell>
                 <TableCell>Total</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="right">Manage</TableCell>
+                <TableCell>Estado</TableCell>
+                <TableCell align="right">Gestionar</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -91,7 +91,7 @@ function AdminReservations() {
                   <TableCell sx={{ color: 'text.secondary' }}>#{res.id}</TableCell>
                   <TableCell>{res.user?.email || 'N/A'}</TableCell>
                   <TableCell sx={{ fontWeight: 600, maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {res.bundle?.nameBundle || 'Unknown'}
+                    {res.bundle?.nameBundle || 'Desconocido'}
                   </TableCell>
                   <TableCell>{res.numberOfPassengers}</TableCell>
                   <TableCell>${res.totalAmount?.toLocaleString()}</TableCell>
@@ -108,7 +108,7 @@ function AdminReservations() {
               {reservations.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={7} sx={{ textAlign: 'center', py: 6, color: 'text.secondary' }}>
-                    No reservations found.
+                    No se encontraron reservas.
                   </TableCell>
                 </TableRow>
               )}
@@ -116,9 +116,9 @@ function AdminReservations() {
           </Table>
 
           <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-            <MenuItem onClick={() => handleStateChange('CONFIRMED')}>Mark as CONFIRMED</MenuItem>
-            <MenuItem onClick={() => handleStateChange('PENDING_PAYMENT')}>Mark as PENDING</MenuItem>
-            <MenuItem onClick={() => handleStateChange('CANCELED')} sx={{ color: 'error.main' }}>Cancel Reservation</MenuItem>
+            <MenuItem onClick={() => handleStateChange('CONFIRMED')}>Marcar como CONFIRMADO</MenuItem>
+            <MenuItem onClick={() => handleStateChange('PENDING_PAYMENT')}>Marcar como PENDIENTE</MenuItem>
+            <MenuItem onClick={() => handleStateChange('CANCELED')} sx={{ color: 'error.main' }}>Cancelar Reserva</MenuItem>
           </Menu>
         </Paper>
       )}

@@ -20,7 +20,7 @@ function PackageDetails() {
   useEffect(() => {
     bundleService.getBundleById(id)
       .then(data => { setBundle(data); setLoading(false); })
-      .catch(() => { setError('Could not fetch package details.'); setLoading(false); });
+      .catch(() => { setError('No se pudo obtener los detalles del paquete.'); setLoading(false); });
   }, [id]);
 
   const getImageUrl = (type) => {
@@ -36,14 +36,14 @@ function PackageDetails() {
   };
 
   if (loading) return <Box sx={{ textAlign: 'center', py: 10 }}><CircularProgress /></Box>;
-  if (error || !bundle) return <Container sx={{ py: 5 }}><Alert severity="error">{error || 'Package not found'}</Alert></Container>;
+  if (error || !bundle) return <Container sx={{ py: 5 }}><Alert severity="error">{error || 'Paquete no encontrado'}</Alert></Container>;
 
   const isAvailable = bundle.stateBundle === 'AVAILABLE';
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }} className="animate-fade-up">
       <Button startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)} sx={{ mb: 3, color: 'text.secondary' }}>
-        Back
+        Volver
       </Button>
 
       <Grid container spacing={4}>
@@ -77,7 +77,7 @@ function PackageDetails() {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                 <AccessTimeIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
                 <Typography variant="body2" color="text.secondary" fontWeight={600}>
-                  {bundle.durationBundle} Days
+                  {bundle.durationBundle} Días
                 </Typography>
               </Box>
             </Box>
@@ -90,7 +90,7 @@ function PackageDetails() {
             </Box>
 
             <Box sx={{ mb: 3, flexGrow: 1 }}>
-              <Typography variant="subtitle2" sx={{ mb: 1 }}>About this experience</Typography>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>Acerca de esta experiencia</Typography>
               <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.8 }}>
                 {bundle.descBundle}
               </Typography>
@@ -101,7 +101,7 @@ function PackageDetails() {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <GroupIcon sx={{ color: 'primary.main' }} />
                   <Box>
-                    <Typography variant="caption" color="text.secondary">Available Spots</Typography>
+                    <Typography variant="caption" color="text.secondary">Cupos Disponibles</Typography>
                     <Typography variant="body1" fontWeight={700}>{bundle.availableSlotsBundle}</Typography>
                   </Box>
                 </Box>
@@ -110,7 +110,7 @@ function PackageDetails() {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <CalendarMonthIcon sx={{ color: 'secondary.main' }} />
                   <Box>
-                    <Typography variant="caption" color="text.secondary">Dates</Typography>
+                    <Typography variant="caption" color="text.secondary">Fechas</Typography>
                     <Typography variant="body2" fontWeight={600}>
                       {new Date(bundle.startDateBundle).toLocaleDateString()} - {new Date(bundle.endDateBundle).toLocaleDateString()}
                     </Typography>
@@ -121,7 +121,7 @@ function PackageDetails() {
 
             <Paper sx={{ p: 3, borderRadius: 3, textAlign: 'center', bgcolor: 'rgba(170,59,255,0.05)', border: '1px solid rgba(170,59,255,0.15)' }}>
               <Typography variant="caption" color="text.secondary" fontWeight={700} textTransform="uppercase">
-                Price per person
+                Precio por persona
               </Typography>
               <Typography variant="h3" color="primary" sx={{ fontWeight: 800, my: 1 }}>
                 ${bundle.priceBundle?.toLocaleString()} <Typography component="span" variant="body2" color="text.secondary">CLP</Typography>
@@ -132,7 +132,7 @@ function PackageDetails() {
                 onClick={() => navigate(`/book/${bundle.idBundle}`)}
                 sx={{ py: 1.5, fontSize: '1.05rem' }}
               >
-                {isAvailable ? 'Book This Experience' : 'Currently Unavailable'}
+                {isAvailable ? 'Reservar Esta Experiencia' : 'Actualmente No Disponible'}
               </Button>
             </Paper>
           </Paper>

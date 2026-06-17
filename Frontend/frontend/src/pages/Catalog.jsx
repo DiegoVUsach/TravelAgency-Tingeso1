@@ -40,7 +40,7 @@ function Catalog() {
       setLoading(true);
       bundleService.searchAvailableBundles(newFilters)
         .then(data => { setBundles(data); setLoading(false); })
-        .catch(() => { setError('Could not load catalog.'); setLoading(false); });
+        .catch(() => { setError('No se pudo cargar el catálogo.'); setLoading(false); });
     }
   }, [searchParams]);
 
@@ -49,7 +49,7 @@ function Catalog() {
     setLoading(true);
     bundleService.searchAvailableBundles(filters)
       .then(data => { setBundles(data); setLoading(false); })
-      .catch(() => { setError('Could not load catalog.'); setLoading(false); });
+      .catch(() => { setError('No se pudo cargar el catálogo.'); setLoading(false); });
   };
 
   const handleInputChange = (e) => {
@@ -62,7 +62,7 @@ function Catalog() {
     setLoading(true);
     bundleService.searchAvailableBundles({})
       .then(data => { setBundles(data); setLoading(false); })
-      .catch(() => { setError('Could not load catalog.'); setLoading(false); });
+      .catch(() => { setError('No se pudo cargar el catálogo.'); setLoading(false); });
   };
 
   return (
@@ -72,12 +72,12 @@ function Catalog() {
         <Grid size={{ xs: 12, md: 3 }}>
           <Paper sx={{ p: 3, position: 'sticky', top: 80, borderRadius: 3 }}>
             <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-              <TuneIcon color="primary" /> Filters
+              <TuneIcon color="primary" /> Filtros
             </Typography>
 
             <Box component="form" onSubmit={handleSearch}>
               <TextField
-                fullWidth label="Destination" name="destiny"
+                fullWidth label="Destino" name="destiny"
                 value={filters.destiny} onChange={handleInputChange}
                 sx={{ mb: 2 }}
                 InputProps={{
@@ -86,47 +86,47 @@ function Catalog() {
               />
 
               <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
-                Price Range (CLP)
+                Rango de Precio (CLP)
               </Typography>
               <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                <TextField name="minPrice" type="number" placeholder="Min" value={filters.minPrice} onChange={handleInputChange} size="small" />
-                <TextField name="maxPrice" type="number" placeholder="Max" value={filters.maxPrice} onChange={handleInputChange} size="small" />
+                <TextField name="minPrice" type="number" placeholder="Mín" value={filters.minPrice} onChange={handleInputChange} size="small" />
+                <TextField name="maxPrice" type="number" placeholder="Máx" value={filters.maxPrice} onChange={handleInputChange} size="small" />
               </Box>
 
               <TextField
-                fullWidth label="Duration (Days)" name="duration" type="number"
+                fullWidth label="Duración (Días)" name="duration" type="number"
                 value={filters.duration} onChange={handleInputChange}
                 sx={{ mb: 2 }}
               />
 
               <TextField
-                fullWidth label="Start Date (After)" name="startDate" type="date"
+                fullWidth label="Fecha de Inicio (Desde)" name="startDate" type="date"
                 value={filters.startDate} onChange={handleInputChange}
                 sx={{ mb: 2 }}
                 InputLabelProps={{ shrink: true }}
               />
 
               <FormControl fullWidth sx={{ mb: 3 }}>
-                <InputLabel>Experience Type</InputLabel>
+                <InputLabel>Tipo de Experiencia</InputLabel>
                 <Select
                   name="experience" value={filters.experience}
-                  onChange={handleInputChange} label="Experience Type"
+                  onChange={handleInputChange} label="Tipo de Experiencia"
                 >
-                  <MenuItem value="">Any Experience</MenuItem>
-                  <MenuItem value="RELAX">Relax</MenuItem>
-                  <MenuItem value="ADVENTURE">Adventure</MenuItem>
+                  <MenuItem value="">Cualquier Experiencia</MenuItem>
+                  <MenuItem value="RELAX">Relajación</MenuItem>
+                  <MenuItem value="ADVENTURE">Aventura</MenuItem>
                   <MenuItem value="CULTURAL">Cultural</MenuItem>
-                  <MenuItem value="FAMILY">Family</MenuItem>
-                  <MenuItem value="ROMANTIC">Romantic</MenuItem>
-                  <MenuItem value="BUSINESS">Business</MenuItem>
+                  <MenuItem value="FAMILY">Familiar</MenuItem>
+                  <MenuItem value="ROMANTIC">Romántico</MenuItem>
+                  <MenuItem value="BUSINESS">Negocios</MenuItem>
                 </Select>
               </FormControl>
 
               <Button fullWidth variant="contained" type="submit" sx={{ mb: 1 }}>
-                Apply Filters
+                Aplicar Filtros
               </Button>
               <Button fullWidth variant="outlined" startIcon={<RestartAltIcon />} onClick={handleReset}>
-                Reset
+                Restablecer
               </Button>
             </Box>
           </Paper>
@@ -136,14 +136,14 @@ function Catalog() {
         <Grid size={{ xs: 12, md: 9 }}>
           <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Box>
-              <Typography variant="h4">Available Packages</Typography>
+              <Typography variant="h4">Paquetes Disponibles</Typography>
               <Typography variant="body2" color="text.secondary">
-                {!loading && `${bundles.length} package${bundles.length !== 1 ? 's' : ''} found`}
+                {!loading && `${bundles.length} paquete${bundles.length !== 1 ? 's' : ''} encontrado${bundles.length !== 1 ? 's' : ''}`}
               </Typography>
             </Box>
             {filters.experience && (
               <Chip
-                label={`Experience: ${filters.experience}`}
+                label={`Experiencia: ${filters.experience}`}
                 color="primary"
                 variant="outlined"
                 onDelete={() => { setFilters({...filters, experience: ''}); }}
@@ -168,8 +168,8 @@ function Catalog() {
 
           {!loading && bundles.length === 0 && (
             <Paper sx={{ textAlign: 'center', py: 8, borderRadius: 3 }}>
-              <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>No results found</Typography>
-              <Typography variant="body2" color="text.secondary">Try adjusting your filters or search criteria.</Typography>
+              <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>No se encontraron resultados</Typography>
+              <Typography variant="body2" color="text.secondary">Intenta ajustar tus filtros o criterios de búsqueda.</Typography>
             </Paper>
           )}
         </Grid>

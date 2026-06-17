@@ -18,14 +18,14 @@ function AdminUsers() {
     setLoading(true);
     userService.getAllUsers()
       .then(data => { setUsers(data); setLoading(false); })
-      .catch(() => { setError('Failed to fetch users.'); setLoading(false); });
+      .catch(() => { setError('No se pudieron obtener los usuarios.'); setLoading(false); });
   };
 
   const handleToggleActive = (id) => {
-    if (window.confirm('Toggle user status?')) {
+    if (window.confirm('¿Cambiar el estado del usuario?')) {
       userService.toggleUserActive(id)
         .then(() => fetchUsers())
-        .catch(() => alert('Failed to update user status.'));
+        .catch(() => alert('No se pudo actualizar el estado del usuario.'));
     }
   };
 
@@ -33,7 +33,7 @@ function AdminUsers() {
     return (
       <Container maxWidth="sm" sx={{ py: 10, textAlign: 'center' }}>
         <Paper sx={{ p: 5, borderRadius: 3 }}>
-          <Typography variant="h5" color="error">Access Denied</Typography>
+          <Typography variant="h5" color="error">Acceso Denegado</Typography>
         </Paper>
       </Container>
     );
@@ -42,8 +42,8 @@ function AdminUsers() {
   return (
     <Container maxWidth="xl" sx={{ py: 4 }} className="animate-fade-up">
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4">User Management</Typography>
-        <Typography variant="body2" color="text.secondary">Manage all registered users in the platform.</Typography>
+        <Typography variant="h4">Gestión de Usuarios</Typography>
+        <Typography variant="body2" color="text.secondary">Gestiona todos los usuarios registrados en la plataforma.</Typography>
       </Box>
 
       {loading && <Box sx={{ textAlign: 'center', py: 8 }}><CircularProgress /></Box>}
@@ -55,12 +55,12 @@ function AdminUsers() {
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
-                <TableCell>Name</TableCell>
+                <TableCell>Nombre</TableCell>
                 <TableCell>Email</TableCell>
-                <TableCell>Phone</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Role</TableCell>
-                <TableCell align="right">Actions</TableCell>
+                <TableCell>Teléfono</TableCell>
+                <TableCell>Estado</TableCell>
+                <TableCell>Rol</TableCell>
+                <TableCell align="right">Acciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -71,7 +71,7 @@ function AdminUsers() {
                   <TableCell>{user.email}</TableCell>
                   <TableCell>{user.phone || 'N/A'}</TableCell>
                   <TableCell>
-                    <Chip label={user.active ? 'ACTIVE' : 'INACTIVE'} size="small"
+                    <Chip label={user.active ? 'ACTIVO' : 'INACTIVO'} size="small"
                       color={user.active ? 'success' : 'error'} sx={{ fontWeight: 700 }} />
                   </TableCell>
                   <TableCell>
@@ -83,7 +83,7 @@ function AdminUsers() {
                       color={user.active ? 'error' : 'success'}
                       onClick={() => handleToggleActive(user.id)}
                     >
-                      {user.active ? 'Deactivate' : 'Activate'}
+                      {user.active ? 'Desactivar' : 'Activar'}
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -91,7 +91,7 @@ function AdminUsers() {
               {users.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={7} sx={{ textAlign: 'center', py: 6, color: 'text.secondary' }}>
-                    No users found.
+                    No se encontraron usuarios.
                   </TableCell>
                 </TableRow>
               )}

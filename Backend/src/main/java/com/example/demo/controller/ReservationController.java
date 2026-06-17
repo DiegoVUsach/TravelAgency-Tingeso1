@@ -22,7 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/reservations")
-@CrossOrigin("*")
+@CrossOrigin(originPatterns = "*")
 @RequiredArgsConstructor
 public class ReservationController {
 
@@ -30,9 +30,9 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @PostMapping("/cart")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReservationResponseDTO> createMultipleReservations(
-            @AuthenticationPrincipal Jwt jwt, 
+            @AuthenticationPrincipal Jwt jwt,
             @RequestBody ReservationRequestDTO request) {
 
         String email = jwt.getClaimAsString("email");
@@ -42,17 +42,18 @@ public class ReservationController {
     }
 
     @PostMapping("/quote")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReservationResponseDTO> quoteReservation(
             @AuthenticationPrincipal Jwt jwt,
             @RequestBody ReservationRequestDTO request) {
-        
+
         String email = jwt.getClaimAsString("email");
         ReservationResponseDTO quote = reservationService.calculateQuote(request, email);
         return ResponseEntity.ok(quote);
-    }    // E6
+    } // E6
+
     @GetMapping("/my-reservations")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<ReservationEntity>> getMyReservations(@AuthenticationPrincipal Jwt jwt) {
         String email = jwt.getClaimAsString("email");
         List<ReservationEntity> reservations = reservationService.getUserReservations(email);
@@ -79,16 +80,24 @@ public class ReservationController {
 
     // E6
     @GetMapping("/{id}/receipt")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<ReservationReceiptDTO> getReservationReceipt(@PathVariable Long id) {
-        ReservationReceiptDTO receipt = reservationService.generateReceipt(id);
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ReservationReceiptDTO> getReservationReceipt(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Jwt jwt) {
+        String callerEmail = jwt.getClaimAsString("email");
+        boolean isAdmin = jwt.getClaimAsStringList("realm_access") != null &&
+                jwt.getClaim("realm_access") instanceof java.util.Map<?, ?> realmAccess &&
+                realmAccess.get("roles") instanceof java.util.List<?> roles &&
+                roles.contains("ADMIN");
+        ReservationReceiptDTO receipt = reservationService.generateReceipt(id, callerEmail, isAdmin);
         return ResponseEntity.ok(receipt);
     }
 
-    //e7
+    // e7
     /**
      * Reporte 1: Listado de Ventas por Período
-     * GET /api/v1/reservations/reports/sales?startDate=2026-01-01&endDate=2026-12-31
+     * GET
+     * /api/v1/reservations/reports/sales?startDate=2026-01-01&endDate=2026-12-31
      */
     @GetMapping("/reports/sales")
     @PreAuthorize("hasAnyRole('ADMIN')")
@@ -102,7 +111,8 @@ public class ReservationController {
 
     /**
      * Reporte 2: Ranking de Paquetes Vendidos por Período
-     * GET /api/v1/reservations/reports/ranking?startDate=2026-01-01&endDate=2026-12-31
+     * GET
+     * /api/v1/reservations/reports/ranking?startDate=2026-01-01&endDate=2026-12-31
      */
     @GetMapping("/reports/ranking")
     @PreAuthorize("hasAnyRole('ADMIN')")
