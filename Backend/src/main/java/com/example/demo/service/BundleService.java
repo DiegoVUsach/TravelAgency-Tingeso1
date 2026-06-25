@@ -14,6 +14,7 @@ import com.example.demo.repository.ReservationRepository;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class BundleService {
@@ -40,7 +41,7 @@ public class BundleService {
 
     // E3 method, for bundle search
     public List<BundleEntity> searchAvailableBundles(
-            String destiny,
+            String destination,
             Integer minPrice,
             Integer maxPrice,
             Integer duration,
@@ -50,7 +51,7 @@ public class BundleService {
 
         return bundleRepository.searchAvailableBundles(
                 BundleState.AVAILABLE,
-                destiny,
+                destination,
                 minPrice,
                 maxPrice,
                 duration,
@@ -67,10 +68,10 @@ public class BundleService {
         if (bundleEntity.getNameBundle() == null || bundleEntity.getNameBundle().isBlank()) {
             throw new IllegalArgumentException("Package name is required.");
         }
-        if (bundleEntity.getDestinyBundle() == null || bundleEntity.getDestinyBundle().isBlank()) {
+        if (bundleEntity.getDestinationBundle() == null || bundleEntity.getDestinationBundle().isBlank()) {
             throw new IllegalArgumentException("Destination is required.");
         }
-        if (bundleEntity.getDescBundle() == null || bundleEntity.getDescBundle().isBlank()) {
+        if (bundleEntity.getDescriptionBundle() == null || bundleEntity.getDescriptionBundle().isBlank()) {
             throw new IllegalArgumentException("Description is required.");
         }
 
@@ -85,8 +86,8 @@ public class BundleService {
                 !bundleEntity.getStartDateBundle().isBefore(bundleEntity.getEndDateBundle())) {
             throw new IllegalArgumentException("The start date must be before the end date and not null.");
         }
-        if (bundleEntity.getTipoExperienciaBundle() == null) {
-            throw new IllegalArgumentException("The experience type must be specified.");
+        if (bundleEntity.getExperienceTypes() == null || bundleEntity.getExperienceTypes().isEmpty()) {
+            throw new IllegalArgumentException("At least one experience type must be specified.");
         }
 
         // Cannot publish as AVAILABLE if no slots
@@ -94,11 +95,12 @@ public class BundleService {
             throw new IllegalArgumentException("Cannot publish as available if there are no spots.");
         }
 
+        // Auto-calculate duration from dates
         int calculatedDuration = (int) ChronoUnit.DAYS.between(
                 bundleEntity.getStartDateBundle(),
                 bundleEntity.getEndDateBundle()
         );
-        bundleEntity.setDurationBundle(calculatedDuration); // automatic duration calc
+        bundleEntity.setDurationBundle(calculatedDuration);
 
         // Set default state if not provided
         if (bundleEntity.getStateBundle() == null) {
@@ -118,10 +120,10 @@ public class BundleService {
         if (newDetails.getNameBundle() == null || newDetails.getNameBundle().isBlank()) {
             throw new IllegalArgumentException("Package name is required.");
         }
-        if (newDetails.getDestinyBundle() == null || newDetails.getDestinyBundle().isBlank()) {
+        if (newDetails.getDestinationBundle() == null || newDetails.getDestinationBundle().isBlank()) {
             throw new IllegalArgumentException("Destination is required.");
         }
-        if (newDetails.getDescBundle() == null || newDetails.getDescBundle().isBlank()) {
+        if (newDetails.getDescriptionBundle() == null || newDetails.getDescriptionBundle().isBlank()) {
             throw new IllegalArgumentException("Description is required.");
         }
         if (newDetails.getPriceBundle() <= 0) {
@@ -155,17 +157,23 @@ public class BundleService {
         }
 
         existingBundle.setNameBundle(newDetails.getNameBundle());
-        existingBundle.setDestinyBundle(newDetails.getDestinyBundle());
-        existingBundle.setDescBundle(newDetails.getDescBundle());
-        existingBundle.setTipoExperienciaBundle(newDetails.getTipoExperienciaBundle());
+        existingBundle.setDestinationBundle(newDetails.getDestinationBundle());
+        existingBundle.setDescriptionBundle(newDetails.getDescriptionBundle());
+        existingBundle.setExperienceTypes(newDetails.getExperienceTypes());
         existingBundle.setAvailableSlotsBundle(newDetails.getAvailableSlotsBundle());
         existingBundle.setStateBundle(newDetails.getStateBundle());
+
+        // Update detail fields
+        existingBundle.setIncludedServices(newDetails.getIncludedServices());
+        existingBundle.setConditions(newDetails.getConditions());
+        existingBundle.setRestrictions(newDetails.getRestrictions());
 
         // Update promo fields
         existingBundle.setPromoStartDate(newDetails.getPromoStartDate());
         existingBundle.setPromoEndDate(newDetails.getPromoEndDate());
         existingBundle.setPromoDiscountPercent(newDetails.getPromoDiscountPercent());
 
+        // Auto-calculate duration from dates
         int recalculatedDuration = (int) ChronoUnit.DAYS.between(
                 existingBundle.getStartDateBundle(),
                 existingBundle.getEndDateBundle()

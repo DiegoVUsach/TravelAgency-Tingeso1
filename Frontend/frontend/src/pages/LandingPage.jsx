@@ -96,7 +96,7 @@ function LandingPage() {
       <CardMedia
         component="img"
         height="200"
-        image={experienceImages[bundle.tipoExperienciaBundle] || defaultImage}
+        image={experienceImages[bundle.experienceTypes?.[0]] || defaultImage}
         alt={bundle.nameBundle}
         sx={{ objectFit: 'cover' }}
       />
@@ -110,7 +110,7 @@ function LandingPage() {
       )}
       <CardContent sx={{ p: 2.5 }}>
         <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 0.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          📍 {bundle.destinyBundle}
+          📍 {bundle.destinationBundle}
         </Typography>
         <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1rem', mb: 1, lineHeight: 1.3 }}>
           {bundle.nameBundle}
@@ -119,7 +119,9 @@ function LandingPage() {
           <Typography variant="h6" color="primary" sx={{ fontWeight: 800, fontSize: '1.1rem' }}>
             ${bundle.priceBundle?.toLocaleString()} <Typography component="span" variant="caption" color="text.secondary">CLP</Typography>
           </Typography>
-          <Chip label={bundle.tipoExperienciaBundle} size="small" variant="outlined" color="primary" />
+          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+            {(bundle.experienceTypes || []).map(t => <Chip key={t} label={t} size="small" variant="outlined" color="primary" />)}
+          </Box>
         </Box>
       </CardContent>
     </Card>

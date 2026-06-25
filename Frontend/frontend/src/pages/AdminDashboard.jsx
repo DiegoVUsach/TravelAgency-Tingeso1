@@ -79,7 +79,7 @@ function AdminDashboard() {
                 <TableRow key={bundle.idBundle} hover>
                   <TableCell sx={{ color: 'text.secondary' }}>#{bundle.idBundle}</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>{bundle.nameBundle}</TableCell>
-                  <TableCell sx={{ color: 'text.secondary' }}>{bundle.destinyBundle}</TableCell>
+                  <TableCell sx={{ color: 'text.secondary' }}>{bundle.destinationBundle}</TableCell>
                   <TableCell>${bundle.priceBundle?.toLocaleString()}</TableCell>
                   <TableCell>{bundle.availableSlotsBundle}</TableCell>
                   <TableCell>

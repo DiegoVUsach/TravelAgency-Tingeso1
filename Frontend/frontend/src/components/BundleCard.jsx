@@ -15,8 +15,15 @@ const experienceImages = {
 };
 const defaultImage = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=600&auto=format&fit=crop';
 
+const experienceLabelMap = {
+  RELAX: 'Relajación', ADVENTURE: 'Aventura', CULTURAL: 'Cultural',
+  FAMILY: 'Familiar', ROMANTIC: 'Romántico', BUSINESS: 'Negocios',
+};
+
 function BundleCard({ bundle }) {
   const navigate = useNavigate();
+  const expTypes = bundle.experienceTypes || [];
+  const firstType = expTypes.length > 0 ? expTypes[0] : null;
 
   return (
     <Card
@@ -27,7 +34,7 @@ function BundleCard({ bundle }) {
         <CardMedia
           component="img"
           height="180"
-          image={experienceImages[bundle.tipoExperienciaBundle] || defaultImage}
+          image={experienceImages[firstType] || defaultImage}
           alt={bundle.nameBundle}
           sx={{ objectFit: 'cover' }}
         />
@@ -47,16 +54,23 @@ function BundleCard({ bundle }) {
       <CardContent sx={{ p: 2.5, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
           <LocationOnIcon sx={{ fontSize: 16, color: 'secondary.main' }} />
-          <Typography variant="caption" color="text.secondary">{bundle.destinyBundle}</Typography>
+          <Typography variant="caption" color="text.secondary">{bundle.destinationBundle}</Typography>
         </Box>
 
         <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, lineHeight: 1.3 }}>
           {bundle.nameBundle}
         </Typography>
 
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, flexGrow: 1, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-          {bundle.descBundle}
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1, flexGrow: 1, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+          {bundle.descriptionBundle}
         </Typography>
+
+        {/* Experience Type Chips */}
+        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mb: 2 }}>
+          {expTypes.map(type => (
+            <Chip key={type} label={experienceLabelMap[type] || type} size="small" variant="outlined" color="primary" sx={{ fontSize: '0.65rem', height: 22 }} />
+          ))}
+        </Box>
 
         <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>

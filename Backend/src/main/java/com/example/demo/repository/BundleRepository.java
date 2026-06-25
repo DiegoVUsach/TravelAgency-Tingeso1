@@ -19,24 +19,25 @@ public interface BundleRepository extends JpaRepository<BundleEntity,Long> {
 
     List<BundleEntity> findByStateBundle(BundleState state);
 
-    List<BundleEntity> findByDestinyBundleContainingIgnoreCase(String destiny);
+    List<BundleEntity> findByDestinationBundleContainingIgnoreCase(String destination);
 
 
     // Query for E3 method, for bundle search with multiple optional parameters
-    @Query("SELECT b FROM BundleEntity b WHERE " +
+    // experienceTypes is a @ElementCollection so we use MEMBER OF to check membership
+    @Query("SELECT DISTINCT b FROM BundleEntity b LEFT JOIN b.experienceTypes et WHERE " +
             "b.stateBundle = :state AND " +
             "b.availableSlotsBundle > 0 AND " +
             "b.startDateBundle >= CURRENT_DATE AND " +
-            "(:destiny IS NULL OR LOWER(b.destinyBundle) LIKE LOWER(CONCAT('%', :destiny, '%'))) AND " +
+            "(:destination IS NULL OR LOWER(b.destinationBundle) LIKE LOWER(CONCAT('%', :destination, '%'))) AND " +
             "(:minPrice IS NULL OR b.priceBundle >= :minPrice) AND " +
             "(:maxPrice IS NULL OR b.priceBundle <= :maxPrice) AND " +
             "(:duration IS NULL OR b.durationBundle = :duration) AND " +
             "(:startDate IS NULL OR b.startDateBundle >= :startDate) AND " +
             "(:endDate IS NULL OR b.endDateBundle <= :endDate) AND " +
-            "(:experience IS NULL OR b.tipoExperienciaBundle = :experience)")
+            "(:experience IS NULL OR :experience MEMBER OF b.experienceTypes)")
     List<BundleEntity> searchAvailableBundles(
             @Param("state") BundleState state,
-            @Param("destiny") String destiny,
+            @Param("destination") String destination,
             @Param("minPrice") Integer minPrice,
             @Param("maxPrice") Integer maxPrice,
             @Param("duration") Integer duration,

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDate;
+import java.util.Set;
 
 
 @NoArgsConstructor
@@ -13,8 +14,8 @@ import java.time.LocalDate;
 @Data
 @Table(name = "Bundles")
 
-// attributes:  name, destiny, desc, available dates, duration, price, included services,
-//              conditions, restrictions, available slots.
+// attributes:  name, destination, description, available dates, duration, price, included services,
+//              conditions, restrictions, available slots, experience types, state.
 public class BundleEntity {
 
 
@@ -24,16 +25,16 @@ public class BundleEntity {
     @Column(name = "id_bundle")
     private Long idBundle;
 
-    // basic fields
+    // ========== Basic Fields ==========
 
     @Column(name = "name_bundle", length = 80, nullable = false)
     private String nameBundle;
 
-    @Column(name = "destiny_bundle", length = 80, nullable = false)
-    private String destinyBundle;
+    @Column(name = "destination_bundle", length = 80, nullable = false)
+    private String destinationBundle;
 
-    @Column(name = "desc_bundle", length = 255, nullable = false)
-    private String descBundle;
+    @Column(name = "description_bundle", length = 1000, nullable = false)
+    private String descriptionBundle;
 
     @Column(name = "start_date_bundle", nullable = false)
     private LocalDate startDateBundle;
@@ -42,26 +43,37 @@ public class BundleEntity {
     private LocalDate endDateBundle;
 
     @Column(name = "duration_bundle", nullable = false)
-    private int durationBundle;
+    private int durationBundle; // auto-calculated from startDate and endDate
 
     @Column(name = "price_bundle", nullable = false)
     private int priceBundle;
 
     @Column(name = "available_slots_bundle", nullable = false)
-    private int availableSlotsBundle; // to do: add restrictions for available slots (must be positive and not 0)
+    private int availableSlotsBundle;
 
-    @Enumerated(EnumType.STRING) // RELAX, ADVENTURE, CULTURAL, FAMILY, ROMANTIC, BUSINESS
-    @Column(name = "tipo_experiencia_bundle", nullable = false)
-    private ExperienceTypeState tipoExperienciaBundle;
+    // ========== Detail & Classification Attributes ==========
+
+    @Column(name = "included_services", length = 1000)
+    private String includedServices; // e.g. "5-star hotel, airport transfers, bilingual guide"
+
+    @Column(name = "conditions", length = 1000)
+    private String conditions; // e.g. "Subject to availability, minimum 2 persons"
+
+    @Column(name = "restrictions", length = 1000)
+    private String restrictions; // e.g. "Non-refundable, minimum age 18"
+
+    @ElementCollection(targetClass = ExperienceTypeState.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "bundle_experience_types", joinColumns = @JoinColumn(name = "bundle_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "experience_type")
+    private Set<ExperienceTypeState> experienceTypes; // allows multiple: e.g. ROMANTIC + FAMILY
 
     @Enumerated(EnumType.STRING)
     @Column(name = "state_bundle", nullable = false)
     private BundleState stateBundle;
 
-    @Column(name = "can_be_modified", nullable = false) //modify this, it has 2 tiers of modification, for it to be deleted at all and the other for modifying the bundle
-    private boolean canBeModified; // to do: add restrictions for modification (it cannot be modified if it already has a reservation, according to the business rules)
+    // ========== Promotions ==========
 
-    // for promotions
     @Column(nullable = true)
     private LocalDate promoStartDate;
 
@@ -69,5 +81,5 @@ public class BundleEntity {
     private LocalDate promoEndDate;
 
     @Column(nullable = true)
-    private Double promoDiscountPercent; // ex: 0.10 for 10% dsct.
+    private Double promoDiscountPercent; // e.g. 0.10 for 10% discount
 }

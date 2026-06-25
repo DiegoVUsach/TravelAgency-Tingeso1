@@ -408,7 +408,7 @@ public class ReservationService {
         receipt.setClientEmail(reservation.getUser().getEmail());
 
         receipt.setBundleName(reservation.getBundle().getNameBundle());
-        receipt.setDestination(reservation.getBundle().getDestinyBundle());
+        receipt.setDestination(reservation.getBundle().getDestinationBundle());
 
         receipt.setNumberOfPassengers(reservation.getNumberOfPassengers());
         receipt.setTotalPaid(reservation.getTotalAmount());
