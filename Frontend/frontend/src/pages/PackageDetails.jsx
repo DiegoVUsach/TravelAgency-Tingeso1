@@ -16,6 +16,18 @@ import { bundleService } from '../services/bundleService';
 const experienceLabelMap = {
   RELAX: 'Relajación', ADVENTURE: 'Aventura', CULTURAL: 'Cultural',
   FAMILY: 'Familiar', ROMANTIC: 'Romántico', BUSINESS: 'Negocios',
+  NATURE: 'Naturaleza', CULINARY: 'Gastronómico', WELLNESS: 'Bienestar',
+  NIGHTLIFE: 'Vida Nocturna',
+};
+
+const seasonLabelMap = {
+  SUMMER: 'Verano', AUTUMN: 'Otoño', WINTER: 'Invierno',
+  SPRING: 'Primavera', ALL_YEAR: 'Todo el Año',
+};
+
+const categoryLabelMap = {
+  ECONOMIC: 'Económico', STANDARD: 'Estándar',
+  PREMIUM: 'Premium', LUXURY: 'Lujo',
 };
 
 function PackageDetails() {
@@ -39,6 +51,10 @@ function PackageDetails() {
       FAMILY: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=1200&auto=format&fit=crop',
       ROMANTIC: 'https://images.unsplash.com/photo-1516815231560-8f41ec531527?q=80&w=1200&auto=format&fit=crop',
       BUSINESS: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop',
+      NATURE: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1200&auto=format&fit=crop',
+      CULINARY: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1200&auto=format&fit=crop',
+      WELLNESS: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=1200&auto=format&fit=crop',
+      NIGHTLIFE: 'https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?q=80&w=1200&auto=format&fit=crop',
     };
     // Use the first experience type for the image
     const firstType = Array.isArray(types) && types.length > 0 ? types[0] : types;
@@ -69,6 +85,18 @@ function PackageDetails() {
                   sx={{ bgcolor: 'rgba(170,59,255,0.9)', color: 'white', fontWeight: 700 }}
                 />
               ))}
+              {bundle.seasonType && (
+                <Chip
+                  label={seasonLabelMap[bundle.seasonType] || bundle.seasonType}
+                  sx={{ bgcolor: 'rgba(34,197,94,0.9)', color: 'white', fontWeight: 700 }}
+                />
+              )}
+              {bundle.categoryType && (
+                <Chip
+                  label={categoryLabelMap[bundle.categoryType] || bundle.categoryType}
+                  sx={{ bgcolor: 'rgba(0,188,212,0.9)', color: 'white', fontWeight: 700 }}
+                />
+              )}
             </Box>
             <img
               src={getImageUrl(expTypes)}

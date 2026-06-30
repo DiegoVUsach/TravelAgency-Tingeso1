@@ -23,7 +23,9 @@ function Catalog() {
     duration: '',
     startDate: '',
     endDate: '',
-    experience: searchParams.get('experience') || ''
+    experience: searchParams.get('experience') || '',
+    season: '',
+    category: ''
   });
 
   useEffect(() => {
@@ -58,7 +60,7 @@ function Catalog() {
   };
 
   const handleReset = () => {
-    setFilters({ destiny: '', minPrice: '', maxPrice: '', duration: '', startDate: '', endDate: '', experience: '' });
+    setFilters({ destiny: '', minPrice: '', maxPrice: '', duration: '', startDate: '', endDate: '', experience: '', season: '', category: '' });
     setLoading(true);
     bundleService.searchAvailableBundles({})
       .then(data => { setBundles(data); setLoading(false); })
@@ -106,7 +108,7 @@ function Catalog() {
                 InputLabelProps={{ shrink: true }}
               />
 
-              <FormControl fullWidth sx={{ mb: 3 }}>
+              <FormControl fullWidth sx={{ mb: 2 }}>
                 <InputLabel>Tipo de Experiencia</InputLabel>
                 <Select
                   name="experience" value={filters.experience}
@@ -119,6 +121,39 @@ function Catalog() {
                   <MenuItem value="FAMILY">Familiar</MenuItem>
                   <MenuItem value="ROMANTIC">Romántico</MenuItem>
                   <MenuItem value="BUSINESS">Negocios</MenuItem>
+                  <MenuItem value="NATURE">Naturaleza</MenuItem>
+                  <MenuItem value="CULINARY">Gastronómico</MenuItem>
+                  <MenuItem value="WELLNESS">Bienestar</MenuItem>
+                  <MenuItem value="NIGHTLIFE">Vida Nocturna</MenuItem>
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth sx={{ mb: 2 }}>
+                <InputLabel>Temporada</InputLabel>
+                <Select
+                  name="season" value={filters.season}
+                  onChange={handleInputChange} label="Temporada"
+                >
+                  <MenuItem value="">Cualquier Temporada</MenuItem>
+                  <MenuItem value="SUMMER">Verano</MenuItem>
+                  <MenuItem value="AUTUMN">Otoño</MenuItem>
+                  <MenuItem value="WINTER">Invierno</MenuItem>
+                  <MenuItem value="SPRING">Primavera</MenuItem>
+                  <MenuItem value="ALL_YEAR">Todo el Año</MenuItem>
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth sx={{ mb: 3 }}>
+                <InputLabel>Categoría</InputLabel>
+                <Select
+                  name="category" value={filters.category}
+                  onChange={handleInputChange} label="Categoría"
+                >
+                  <MenuItem value="">Cualquier Categoría</MenuItem>
+                  <MenuItem value="ECONOMIC">Económico</MenuItem>
+                  <MenuItem value="STANDARD">Estándar</MenuItem>
+                  <MenuItem value="PREMIUM">Premium</MenuItem>
+                  <MenuItem value="LUXURY">Lujo</MenuItem>
                 </Select>
               </FormControl>
 
@@ -134,21 +169,39 @@ function Catalog() {
 
         {/* RESULTS */}
         <Grid size={{ xs: 12, md: 9 }}>
-          <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
             <Box>
               <Typography variant="h4">Paquetes Disponibles</Typography>
               <Typography variant="body2" color="text.secondary">
                 {!loading && `${bundles.length} paquete${bundles.length !== 1 ? 's' : ''} encontrado${bundles.length !== 1 ? 's' : ''}`}
               </Typography>
             </Box>
-            {filters.experience && (
-              <Chip
-                label={`Experiencia: ${filters.experience}`}
-                color="primary"
-                variant="outlined"
-                onDelete={() => { setFilters({...filters, experience: ''}); }}
-              />
-            )}
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              {filters.experience && (
+                <Chip
+                  label={`Experiencia: ${filters.experience}`}
+                  color="primary"
+                  variant="outlined"
+                  onDelete={() => { setFilters({...filters, experience: ''}); }}
+                />
+              )}
+              {filters.season && (
+                <Chip
+                  label={`Temporada: ${filters.season}`}
+                  color="success"
+                  variant="outlined"
+                  onDelete={() => { setFilters({...filters, season: ''}); }}
+                />
+              )}
+              {filters.category && (
+                <Chip
+                  label={`Categoría: ${filters.category}`}
+                  color="secondary"
+                  variant="outlined"
+                  onDelete={() => { setFilters({...filters, category: ''}); }}
+                />
+              )}
+            </Box>
           </Box>
 
           {loading && (

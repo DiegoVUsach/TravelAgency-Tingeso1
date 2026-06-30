@@ -14,6 +14,10 @@ import MuseumIcon from '@mui/icons-material/Museum';
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
+import ForestIcon from '@mui/icons-material/Forest';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
+import SelfImprovementIcon from '@mui/icons-material/SelfImprovement';
+import NightlifeIcon from '@mui/icons-material/Nightlife';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { useNavigate } from 'react-router-dom';
@@ -26,6 +30,10 @@ const experienceImages = {
   FAMILY: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=800&auto=format&fit=crop',
   ROMANTIC: 'https://images.unsplash.com/photo-1516815231560-8f41ec531527?q=80&w=800&auto=format&fit=crop',
   BUSINESS: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=800&auto=format&fit=crop',
+  NATURE: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=800&auto=format&fit=crop',
+  CULINARY: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=800&auto=format&fit=crop',
+  WELLNESS: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=800&auto=format&fit=crop',
+  NIGHTLIFE: 'https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?q=80&w=800&auto=format&fit=crop',
 };
 const defaultImage = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=800&auto=format&fit=crop';
 
@@ -36,6 +44,10 @@ const categories = [
   { key: 'FAMILY', label: 'Familiar', icon: <FamilyRestroomIcon />, color: '#ec4899' },
   { key: 'ROMANTIC', label: 'Romántico', icon: <FavoriteIcon />, color: '#ef4444' },
   { key: 'BUSINESS', label: 'Negocios', icon: <BusinessCenterIcon />, color: '#6366f1' },
+  { key: 'NATURE', label: 'Naturaleza', icon: <ForestIcon />, color: '#16a34a' },
+  { key: 'CULINARY', label: 'Gastronómico', icon: <RestaurantIcon />, color: '#ea580c' },
+  { key: 'WELLNESS', label: 'Bienestar', icon: <SelfImprovementIcon />, color: '#0ea5e9' },
+  { key: 'NIGHTLIFE', label: 'Vida Nocturna', icon: <NightlifeIcon />, color: '#a855f7' },
 ];
 
 function LandingPage() {

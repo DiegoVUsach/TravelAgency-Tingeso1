@@ -5,20 +5,8 @@ TODO:
  - ver tema de descuentos y como agregarlos desde el frontend
  - junit
  - todo en español y coherente, falta lo 2do
- - agregar SeasonType y CategoryType
- - agregar esto a experience tipe
- public enum ExperienceTypeState {
-    RELAX,
-    ADVENTURE,
-    CULTURAL,
-    FAMILY,
-    ROMANTIC,
-    BUSINESS,
-    NATURE,
-    CULINARY,
-    WELLNESS,
-    NIGHTLIFE
-}
+- probar lo de las CategoryType- arreglar keycloak
+
 Progress
 # BACKEND
 E1 must be done at the end

@@ -12,12 +12,28 @@ const experienceImages = {
   FAMILY: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=600&auto=format&fit=crop',
   ROMANTIC: 'https://images.unsplash.com/photo-1516815231560-8f41ec531527?q=80&w=600&auto=format&fit=crop',
   BUSINESS: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=600&auto=format&fit=crop',
+  NATURE: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=600&auto=format&fit=crop',
+  CULINARY: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=600&auto=format&fit=crop',
+  WELLNESS: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=600&auto=format&fit=crop',
+  NIGHTLIFE: 'https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?q=80&w=600&auto=format&fit=crop',
 };
 const defaultImage = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=600&auto=format&fit=crop';
 
 const experienceLabelMap = {
   RELAX: 'Relajación', ADVENTURE: 'Aventura', CULTURAL: 'Cultural',
   FAMILY: 'Familiar', ROMANTIC: 'Romántico', BUSINESS: 'Negocios',
+  NATURE: 'Naturaleza', CULINARY: 'Gastronómico', WELLNESS: 'Bienestar',
+  NIGHTLIFE: 'Vida Nocturna',
+};
+
+const seasonLabelMap = {
+  SUMMER: 'Verano', AUTUMN: 'Otoño', WINTER: 'Invierno',
+  SPRING: 'Primavera', ALL_YEAR: 'Todo el Año',
+};
+
+const categoryLabelMap = {
+  ECONOMIC: 'Económico', STANDARD: 'Estándar',
+  PREMIUM: 'Premium', LUXURY: 'Lujo',
 };
 
 function BundleCard({ bundle }) {
@@ -66,10 +82,20 @@ function BundleCard({ bundle }) {
         </Typography>
 
         {/* Experience Type Chips */}
-        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mb: 2 }}>
+        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mb: 1 }}>
           {expTypes.map(type => (
             <Chip key={type} label={experienceLabelMap[type] || type} size="small" variant="outlined" color="primary" sx={{ fontSize: '0.65rem', height: 22 }} />
           ))}
+        </Box>
+
+        {/* Season & Category Chips */}
+        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mb: 2 }}>
+          {bundle.seasonType && (
+            <Chip label={seasonLabelMap[bundle.seasonType] || bundle.seasonType} size="small" variant="outlined" color="success" sx={{ fontSize: '0.65rem', height: 22 }} />
+          )}
+          {bundle.categoryType && (
+            <Chip label={categoryLabelMap[bundle.categoryType] || bundle.categoryType} size="small" variant="outlined" color="secondary" sx={{ fontSize: '0.65rem', height: 22 }} />
+          )}
         </Box>
 
         <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>

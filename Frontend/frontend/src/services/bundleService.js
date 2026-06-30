@@ -31,7 +31,9 @@ export const bundleService = {
                     duration: filters.duration || null,
                     startDate: filters.startDate || null,
                     endDate: filters.endDate || null,
-                    experience: filters.experience || null 
+                    experience: filters.experience || null,
+                    season: filters.season || null,
+                    category: filters.category || null
                 }
             });
             return response.data;

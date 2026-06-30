@@ -4,6 +4,8 @@ package com.example.demo.service;
 import com.example.demo.entity.BundleEntity;
 import com.example.demo.entity.BundleState;
 import com.example.demo.entity.ExperienceTypeState;
+import com.example.demo.entity.SeasonTypeState;
+import com.example.demo.entity.CategoryTypeState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.demo.repository.BundleRepository;
@@ -47,7 +49,9 @@ public class BundleService {
             Integer duration,
             LocalDate startDate,
             LocalDate endDate,
-            ExperienceTypeState experience) {
+            ExperienceTypeState experience,
+            SeasonTypeState season,
+            CategoryTypeState category) {
 
         return bundleRepository.searchAvailableBundles(
                 BundleState.AVAILABLE,
@@ -57,7 +61,9 @@ public class BundleService {
                 duration,
                 startDate,
                 endDate,
-                experience
+                experience,
+                season,
+                category
         );
     }
 
@@ -160,6 +166,8 @@ public class BundleService {
         existingBundle.setDestinationBundle(newDetails.getDestinationBundle());
         existingBundle.setDescriptionBundle(newDetails.getDescriptionBundle());
         existingBundle.setExperienceTypes(newDetails.getExperienceTypes());
+        existingBundle.setSeasonType(newDetails.getSeasonType());
+        existingBundle.setCategoryType(newDetails.getCategoryType());
         existingBundle.setAvailableSlotsBundle(newDetails.getAvailableSlotsBundle());
         existingBundle.setStateBundle(newDetails.getStateBundle());
 

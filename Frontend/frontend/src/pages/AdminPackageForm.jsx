@@ -17,6 +17,25 @@ const EXPERIENCE_OPTIONS = [
   { value: 'FAMILY', label: 'Familiar' },
   { value: 'ROMANTIC', label: 'Romántico' },
   { value: 'BUSINESS', label: 'Negocios' },
+  { value: 'NATURE', label: 'Naturaleza' },
+  { value: 'CULINARY', label: 'Gastronómico' },
+  { value: 'WELLNESS', label: 'Bienestar' },
+  { value: 'NIGHTLIFE', label: 'Vida Nocturna' },
+];
+
+const SEASON_OPTIONS = [
+  { value: 'SUMMER', label: 'Verano' },
+  { value: 'AUTUMN', label: 'Otoño' },
+  { value: 'WINTER', label: 'Invierno' },
+  { value: 'SPRING', label: 'Primavera' },
+  { value: 'ALL_YEAR', label: 'Todo el Año' },
+];
+
+const CATEGORY_OPTIONS = [
+  { value: 'ECONOMIC', label: 'Económico' },
+  { value: 'STANDARD', label: 'Estándar' },
+  { value: 'PREMIUM', label: 'Premium' },
+  { value: 'LUXURY', label: 'Lujo' },
 ];
 
 function AdminPackageForm() {
@@ -29,6 +48,7 @@ function AdminPackageForm() {
     nameBundle: '', destinationBundle: '', descriptionBundle: '', priceBundle: '',
     availableSlotsBundle: '', startDateBundle: '', endDateBundle: '',
     stateBundle: 'AVAILABLE', experienceTypes: ['RELAX'],
+    seasonType: '', categoryType: '',
     includedServices: '', conditions: '', restrictions: ''
   });
   const [loading, setLoading] = useState(isEditMode);
@@ -44,6 +64,8 @@ function AdminPackageForm() {
             startDateBundle: data.startDateBundle ? data.startDateBundle.split('T')[0] : '',
             endDateBundle: data.endDateBundle ? data.endDateBundle.split('T')[0] : '',
             experienceTypes: data.experienceTypes || ['RELAX'],
+            seasonType: data.seasonType || '',
+            categoryType: data.categoryType || '',
             includedServices: data.includedServices || '',
             conditions: data.conditions || '',
             restrictions: data.restrictions || '',
@@ -82,6 +104,8 @@ function AdminPackageForm() {
       ...formData,
       priceBundle: Number(formData.priceBundle),
       availableSlotsBundle: Number(formData.availableSlotsBundle),
+      seasonType: formData.seasonType || null,
+      categoryType: formData.categoryType || null,
     };
     const request = isEditMode ? bundleService.updateBundle(id, payload) : bundleService.createBundle(payload);
     request
@@ -169,7 +193,10 @@ function AdminPackageForm() {
             </Grid>
 
             {/* Experience Types (multi-select) */}
-            <Grid size={6}>
+            <Grid size={12}>
+              <Typography variant="subtitle2" sx={{ mt: 1, mb: 0.5, color: 'text.secondary' }}>Etiquetas</Typography>
+            </Grid>
+            <Grid size={4}>
               <FormControl fullWidth>
                 <InputLabel>Tipos de Experiencia</InputLabel>
                 <Select
@@ -189,6 +216,34 @@ function AdminPackageForm() {
                 </Select>
               </FormControl>
             </Grid>
+
+            {/* Season Type (single-select) */}
+            <Grid size={4}>
+              <FormControl fullWidth>
+                <InputLabel>Temporada</InputLabel>
+                <Select name="seasonType" value={formData.seasonType} onChange={handleInputChange} label="Temporada">
+                  <MenuItem value="">Sin Especificar</MenuItem>
+                  {SEASON_OPTIONS.map(opt => (
+                    <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            {/* Category Type (single-select) */}
+            <Grid size={4}>
+              <FormControl fullWidth>
+                <InputLabel>Categoría</InputLabel>
+                <Select name="categoryType" value={formData.categoryType} onChange={handleInputChange} label="Categoría">
+                  <MenuItem value="">Sin Especificar</MenuItem>
+                  {CATEGORY_OPTIONS.map(opt => (
+                    <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            {/* State */}
             <Grid size={6}>
               <FormControl fullWidth>
                 <InputLabel>Estado</InputLabel>

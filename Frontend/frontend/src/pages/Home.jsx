@@ -82,6 +82,10 @@ function Home() {
                 <option value="FAMILY">Family</option>
                 <option value="ROMANTIC">Romantic</option>
                 <option value="BUSINESS">Business</option>
+                <option value="NATURE">Nature</option>
+                <option value="CULINARY">Culinary</option>
+                <option value="WELLNESS">Wellness</option>
+                <option value="NIGHTLIFE">Nightlife</option>
               </Form.Select>
             </Form.Group>
 

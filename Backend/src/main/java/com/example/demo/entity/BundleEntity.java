@@ -69,6 +69,14 @@ public class BundleEntity {
     private Set<ExperienceTypeState> experienceTypes; // allows multiple: e.g. ROMANTIC + FAMILY
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "season_type")
+    private SeasonTypeState seasonType; // single value: e.g. SUMMER
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category_type")
+    private CategoryTypeState categoryType; // single value: e.g. PREMIUM
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "state_bundle", nullable = false)
     private BundleState stateBundle;
 

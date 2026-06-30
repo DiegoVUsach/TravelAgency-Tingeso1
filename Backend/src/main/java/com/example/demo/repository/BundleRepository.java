@@ -3,6 +3,8 @@ package com.example.demo.repository;
 import com.example.demo.entity.BundleEntity;
 import com.example.demo.entity.BundleState;
 import com.example.demo.entity.ExperienceTypeState;
+import com.example.demo.entity.SeasonTypeState;
+import com.example.demo.entity.CategoryTypeState;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -24,6 +26,7 @@ public interface BundleRepository extends JpaRepository<BundleEntity,Long> {
 
     // Query for E3 method, for bundle search with multiple optional parameters
     // experienceTypes is a @ElementCollection so we use MEMBER OF to check membership
+    // seasonType and categoryType are single-value enums so we use simple equality
     @Query("SELECT DISTINCT b FROM BundleEntity b LEFT JOIN b.experienceTypes et WHERE " +
             "b.stateBundle = :state AND " +
             "b.availableSlotsBundle > 0 AND " +
@@ -34,7 +37,9 @@ public interface BundleRepository extends JpaRepository<BundleEntity,Long> {
             "(:duration IS NULL OR b.durationBundle = :duration) AND " +
             "(:startDate IS NULL OR b.startDateBundle >= :startDate) AND " +
             "(:endDate IS NULL OR b.endDateBundle <= :endDate) AND " +
-            "(:experience IS NULL OR :experience MEMBER OF b.experienceTypes)")
+            "(:experience IS NULL OR :experience MEMBER OF b.experienceTypes) AND " +
+            "(:season IS NULL OR b.seasonType = :season) AND " +
+            "(:category IS NULL OR b.categoryType = :category)")
     List<BundleEntity> searchAvailableBundles(
             @Param("state") BundleState state,
             @Param("destination") String destination,
@@ -43,7 +48,9 @@ public interface BundleRepository extends JpaRepository<BundleEntity,Long> {
             @Param("duration") Integer duration,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
-            @Param("experience") ExperienceTypeState experience
+            @Param("experience") ExperienceTypeState experience,
+            @Param("season") SeasonTypeState season,
+            @Param("category") CategoryTypeState category
     );
 
 

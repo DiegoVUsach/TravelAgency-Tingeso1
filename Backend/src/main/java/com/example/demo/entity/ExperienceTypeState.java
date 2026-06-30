@@ -6,5 +6,9 @@ public enum ExperienceTypeState {
     CULTURAL,
     FAMILY,
     ROMANTIC,
-    BUSINESS
+    BUSINESS,
+    NATURE,
+    CULINARY,
+    WELLNESS,
+    NIGHTLIFE
 }
