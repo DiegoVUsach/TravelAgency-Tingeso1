@@ -2,10 +2,11 @@ Personal notes, do not take as instructions, just a reminder for myself
 TODO:
  - ver que perfil y reservas funcione
  - poblar base de datos con datos de prueba
- - ver tema de descuentos y como agregarlos desde el frontend
- - junit
+
+ - junit, revisar que sirvan
  - todo en español y coherente, falta lo 2do
-- probar lo de las CategoryType- arreglar keycloak
+- docker
+- Pipeline
 
 Progress
 # BACKEND
@@ -47,8 +48,6 @@ client id: travelagency-frontend
 - Despliegue en Producción (Nube)
 
 --------------------------------------------------------------------------------------
-agregar esto a los metodos de controllers para security
-@PreAuthorize("hasAnyRole('USER','ADMIN')") para lo de keycloak
 
 para armar keycloak despues se usa la imagen de docker
 

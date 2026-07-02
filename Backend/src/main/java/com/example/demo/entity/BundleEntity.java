@@ -43,13 +43,13 @@ public class BundleEntity {
     private LocalDate endDateBundle;
 
     @Column(name = "duration_bundle", nullable = false)
-    private int durationBundle; // auto-calculated from startDate and endDate
+    private Integer durationBundle; // auto-calculated from startDate and endDate
 
     @Column(name = "price_bundle", nullable = false)
-    private int priceBundle;
+    private Integer priceBundle;
 
     @Column(name = "available_slots_bundle", nullable = false)
-    private int availableSlotsBundle;
+    private Integer availableSlotsBundle;
 
     // ========== Detail & Classification Attributes ==========
 

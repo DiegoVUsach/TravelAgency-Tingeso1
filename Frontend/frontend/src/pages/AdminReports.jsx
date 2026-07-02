@@ -89,7 +89,7 @@ function AdminReports() {
               <TableBody>
                 {salesReport.map(sale => (
                   <TableRow key={sale.id} hover>
-                    <TableCell>{new Date(sale.reservationDate).toLocaleDateString()}</TableCell>
+                    <TableCell>{new Date(sale.reservationDate).toLocaleDateString(undefined, { timeZone: 'UTC' })}</TableCell>
                     <TableCell>{sale.user?.email || 'N/A'}</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>{sale.bundle?.nameBundle || 'Desconocido'}</TableCell>
                     <TableCell>{sale.numberOfPassengers}</TableCell>

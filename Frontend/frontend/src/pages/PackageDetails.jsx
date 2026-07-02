@@ -179,7 +179,7 @@ function PackageDetails() {
                   <Box>
                     <Typography variant="caption" color="text.secondary">Fechas</Typography>
                     <Typography variant="body2" fontWeight={600}>
-                      {new Date(bundle.startDateBundle).toLocaleDateString()} - {new Date(bundle.endDateBundle).toLocaleDateString()}
+                      {new Date(bundle.startDateBundle).toLocaleDateString(undefined, { timeZone: 'UTC' })} - {new Date(bundle.endDateBundle).toLocaleDateString(undefined, { timeZone: 'UTC' })}
                     </Typography>
                   </Box>
                 </Box>
