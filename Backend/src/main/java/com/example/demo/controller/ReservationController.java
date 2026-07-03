@@ -95,7 +95,7 @@ public class ReservationController {
 
     // e7
     /**
-     * Reporte 1: Listado de Ventas por Período
+     * Report 1: Sales List by Period
      * GET
      * /api/v1/reservations/reports/sales?startDate=2026-01-01&endDate=2026-12-31
      */
@@ -110,7 +110,7 @@ public class ReservationController {
     }
 
     /**
-     * Reporte 2: Ranking de Paquetes Vendidos por Período
+     * Report 2: Package Sales Ranking by Period
      * GET
      * /api/v1/reservations/reports/ranking?startDate=2026-01-01&endDate=2026-12-31
      */

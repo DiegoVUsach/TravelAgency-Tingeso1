@@ -30,7 +30,7 @@ public class ReservationService {
 
     public ReservationResponseDTO calculateQuote(ReservationRequestDTO request, String email) {
         if (request.getItems() == null || request.getItems().isEmpty()) {
-            throw new IllegalArgumentException("El carrito no puede estar vacío.");
+            throw new IllegalArgumentException("The cart cannot be empty.");
         }
 
         double globalDiscount = 0.0;
@@ -47,7 +47,7 @@ public class ReservationService {
             globalDiscount += multiPackageDiscount;
             appliedDiscounts.add(new DiscountDetailDTO(
                     "MULTIPLE_PACKAGES",
-                    "Descuento por comprar " + request.getItems().size() + " paquetes juntos",
+                    "Discount for purchasing " + request.getItems().size() + " packages together",
                     multiPackageDiscount,
                     0 // amount will be calculated after we know the subtotal
             ));
@@ -58,7 +58,7 @@ public class ReservationService {
             globalDiscount += frequentClientDiscount;
             appliedDiscounts.add(new DiscountDetailDTO(
                     "FREQUENT_CLIENT",
-                    "Descuento de cliente frecuente (" + paidReservations + " reservas pagadas)",
+                    "Frequent client discount (" + paidReservations + " paid reservations)",
                     frequentClientDiscount,
                     0
             ));
@@ -69,23 +69,23 @@ public class ReservationService {
 
         for (CartItemDTO item : request.getItems()) {
             if (item.getPassengers() <= 0) {
-                throw new IllegalArgumentException("Los pasajeros deben ser mayores a 0.");
+                throw new IllegalArgumentException("Passengers must be greater than 0.");
             }
 
             BundleEntity bundle = bundleRepository.findById(item.getBundleId())
-                    .orElseThrow(() -> new RuntimeException("Paquete no encontrado con ID: " + item.getBundleId()));
+                    .orElseThrow(() -> new RuntimeException("Bundle not found with ID: " + item.getBundleId()));
 
             if (bundle.getStateBundle() == BundleState.CANCELED || bundle.getStateBundle() == BundleState.EXPIRED || bundle.getStateBundle() == BundleState.SOLD_OUT) {
-                throw new IllegalStateException("No se puede reservar el paquete: " + bundle.getNameBundle());
+                throw new IllegalStateException("Cannot reserve the bundle: " + bundle.getNameBundle());
             }
 
             LocalDate today = LocalDate.now();
             if (today.isAfter(bundle.getEndDateBundle())) {
-                throw new IllegalStateException("El paquete ya ha terminado: " + bundle.getNameBundle());
+                throw new IllegalStateException("The bundle has already ended: " + bundle.getNameBundle());
             }
 
             if (bundle.getAvailableSlotsBundle() < item.getPassengers()) {
-                throw new IllegalStateException("No hay suficientes cupos disponibles para el paquete: " + bundle.getNameBundle());
+                throw new IllegalStateException("Not enough available slots for the bundle: " + bundle.getNameBundle());
             }
 
             double itemDiscount = globalDiscount;
@@ -98,7 +98,7 @@ public class ReservationService {
                 if (!alreadyAdded) {
                     appliedDiscounts.add(new DiscountDetailDTO(
                             "VOLUME_DISCOUNT",
-                            "Descuento grupal para " + item.getPassengers() + "+ pasajeros",
+                            "Group discount for " + item.getPassengers() + "+ passengers",
                             volumeDiscount,
                             0
                     ));
@@ -114,7 +114,7 @@ public class ReservationService {
                     if (!promoAlreadyAdded) {
                         appliedDiscounts.add(new DiscountDetailDTO(
                                 "PROMOTION",
-                                "Promoción activa en " + bundle.getNameBundle(),
+                                "Active promotion on " + bundle.getNameBundle(),
                                 bundle.getPromoDiscountPercent(),
                                 0
                         ));
@@ -146,7 +146,7 @@ public class ReservationService {
         }
 
         ReservationResponseDTO response = new ReservationResponseDTO();
-        response.setMessage("Cotización calculada exitosamente.");
+        response.setMessage("Quote calculated successfully.");
         response.setSubtotal(cartSubtotal);
         response.setFinalTotal(cartFinalTotal);
         response.setTotalDiscount(cartSubtotal - cartFinalTotal);
@@ -159,7 +159,7 @@ public class ReservationService {
     public ReservationResponseDTO processCartReservations(ReservationRequestDTO request, String email) {
 
         if (request.getItems() == null || request.getItems().isEmpty()) {
-            throw new IllegalArgumentException("El carrito no puede estar vacío.");
+            throw new IllegalArgumentException("The cart cannot be empty.");
         }
 
         UserEntity user = userService.getUserEntity(email);
@@ -183,7 +183,7 @@ public class ReservationService {
             globalDiscount += multiPackageDiscount;
             appliedDiscounts.add(new DiscountDetailDTO(
                     "MULTIPLE_PACKAGES",
-                    "Descuento por comprar " + request.getItems().size() + " paquetes juntos",
+                    "Discount for purchasing " + request.getItems().size() + " packages together",
                     multiPackageDiscount,
                     0
             ));
@@ -195,7 +195,7 @@ public class ReservationService {
             globalDiscount += frequentClientDiscount;
             appliedDiscounts.add(new DiscountDetailDTO(
                     "FREQUENT_CLIENT",
-                    "Descuento de cliente frecuente (" + paidReservations + " reservas pagadas)",
+                    "Frequent client discount (" + paidReservations + " paid reservations)",
                     frequentClientDiscount,
                     0
             ));
@@ -208,31 +208,31 @@ public class ReservationService {
         // Process each item in the cart
         for (CartItemDTO item : request.getItems()) {
             if (item.getPassengers() <= 0) {
-                throw new IllegalArgumentException("Los pasajeros deben ser mayores a 0.");
+                throw new IllegalArgumentException("Passengers must be greater than 0.");
             }
 
             BundleEntity bundle = bundleRepository.findById(item.getBundleId())
-                    .orElseThrow(() -> new RuntimeException("Paquete no encontrado con ID: " + item.getBundleId()));
+                    .orElseThrow(() -> new RuntimeException("Bundle not found with ID: " + item.getBundleId()));
 
             // Validate bundle state - cannot be canceled, expired, or sold out
             if (bundle.getStateBundle() == BundleState.CANCELED) {
-                throw new IllegalStateException("No se puede reservar un paquete cancelado: " + bundle.getNameBundle());
+                throw new IllegalStateException("Cannot reserve a canceled bundle: " + bundle.getNameBundle());
             }
             if (bundle.getStateBundle() == BundleState.EXPIRED) {
-                throw new IllegalStateException("No se puede reservar un paquete expirado: " + bundle.getNameBundle());
+                throw new IllegalStateException("Cannot reserve an expired bundle: " + bundle.getNameBundle());
             }
             if (bundle.getStateBundle() == BundleState.SOLD_OUT) {
-                throw new IllegalStateException("El paquete está agotado: " + bundle.getNameBundle());
+                throw new IllegalStateException("The bundle is sold out: " + bundle.getNameBundle());
             }
 
             // Validate bundle has not already ended
             LocalDate today = LocalDate.now();
             if (today.isAfter(bundle.getEndDateBundle())) {
-                throw new IllegalStateException("El paquete ya ha terminado: " + bundle.getNameBundle());
+                throw new IllegalStateException("The bundle has already ended: " + bundle.getNameBundle());
             }
 
             if (bundle.getAvailableSlotsBundle() < item.getPassengers()) {
-                throw new IllegalStateException("No hay suficientes cupos disponibles para el paquete: " + bundle.getNameBundle());
+                throw new IllegalStateException("Not enough available slots for the bundle: " + bundle.getNameBundle());
             }
 
             // Inherit global discount (multiple packages + frequent client)
@@ -246,7 +246,7 @@ public class ReservationService {
                 if (!alreadyAdded) {
                     appliedDiscounts.add(new DiscountDetailDTO(
                             "VOLUME_DISCOUNT",
-                            "Descuento grupal para " + item.getPassengers() + "+ pasajeros",
+                            "Group discount for " + item.getPassengers() + "+ passengers",
                             volumeDiscount,
                             0
                     ));
@@ -263,7 +263,7 @@ public class ReservationService {
                     if (!promoAlreadyAdded) {
                         appliedDiscounts.add(new DiscountDetailDTO(
                                 "PROMOTION",
-                                "Promoción activa en " + bundle.getNameBundle(),
+                                "Active promotion on " + bundle.getNameBundle(),
                                 bundle.getPromoDiscountPercent(),
                                 0
                         ));
@@ -315,7 +315,7 @@ public class ReservationService {
 
         // Build the Response DTO
         ReservationResponseDTO response = new ReservationResponseDTO();
-        response.setMessage("Reservas creadas exitosamente.");
+        response.setMessage("Reservations created successfully.");
         response.setSubtotal(cartSubtotal);
         response.setFinalTotal(cartFinalTotal);
         response.setTotalDiscount(cartSubtotal - cartFinalTotal);
@@ -371,10 +371,10 @@ public class ReservationService {
     @Transactional
     public ReservationEntity updateReservationState(Long id, ReservationState newState) {
         ReservationEntity reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Reserva no encontrada con ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Reservation not found with ID: " + id));
 
         if (reservation.getState() == ReservationState.CANCELED && newState == ReservationState.CONFIRMED) {
-            throw new IllegalStateException("Una reserva cancelada no puede ser confirmada. El sistema bloquea esta acción.");
+            throw new IllegalStateException("A canceled reservation cannot be confirmed. The system blocks this action.");
         }
 
         // TODO: add more business rules if time permits
@@ -388,16 +388,16 @@ public class ReservationService {
     public ReservationReceiptDTO generateReceipt(Long reservationId, String callerEmail, boolean isAdmin) {
 
         ReservationEntity reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("Reserva no encontrada con ID: " + reservationId));
+                .orElseThrow(() -> new RuntimeException("Reservation not found with ID: " + reservationId));
 
         // Validate that the caller is the owner of the reservation or an admin
         if (!isAdmin && !reservation.getUser().getEmail().equals(callerEmail)) {
-            throw new IllegalStateException("Solo puedes acceder a los recibos de tus propias reservas.");
+            throw new IllegalStateException("You can only access receipts for your own reservations.");
         }
 
         if (reservation.getState() != ReservationState.CONFIRMED) {
             throw new IllegalStateException(
-                    "Error: No se puede emitir un recibo. La reserva está en estado: "
+                    "Error: Cannot issue a receipt. The reservation is in state: "
                             + reservation.getState());
         }
 
@@ -412,7 +412,7 @@ public class ReservationService {
 
         receipt.setNumberOfPassengers(reservation.getNumberOfPassengers());
         receipt.setTotalPaid(reservation.getTotalAmount());
-        receipt.setStatus("PAGADO OFICIALMENTE");
+        receipt.setStatus("OFFICIALLY PAID");
 
         return receipt;
     }
@@ -420,7 +420,7 @@ public class ReservationService {
     // e7
     public List<ReservationEntity> getSalesByPeriod(LocalDate startDate, LocalDate endDate) {
         if (startDate.isAfter(endDate)) {
-            throw new IllegalArgumentException("La fecha de inicio no puede ser posterior a la fecha de fin");
+            throw new IllegalArgumentException("Start date cannot be after the end date.");
         }
 
         // does not include canceled sales, as they do not generate revenue and are not
@@ -435,7 +435,7 @@ public class ReservationService {
     // reservations, maybe this will make problems
     public List<PackageRankingDTO> getPackageRanking(LocalDate startDate, LocalDate endDate) {
         if (startDate.isAfter(endDate)) {
-            throw new IllegalArgumentException("La fecha de inicio no puede ser posterior a la fecha de fin");
+            throw new IllegalArgumentException("Start date cannot be after the end date.");
         }
         return reservationRepository.findPackageRanking(ReservationState.CANCELED, startDate, endDate);
     }

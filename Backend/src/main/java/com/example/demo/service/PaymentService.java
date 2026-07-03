@@ -32,7 +32,7 @@ public class PaymentService {
 
         // Verify that the caller is the owner of the reservation
         if (!reservation.getUser().getEmail().equals(callerEmail)) {
-            throw new IllegalStateException("No puedes pagar una reserva que no te pertenece.");
+            throw new IllegalStateException("You cannot pay for a reservation that does not belong to you.");
         }
 
         // checks if it has already been paid

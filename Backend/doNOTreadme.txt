@@ -3,8 +3,7 @@ TODO:
  - ver que perfil y reservas funcione
  - poblar base de datos con datos de prueba
 
- - junit, revisar que sirvan
- - todo en español y coherente, falta lo 2do
+ - junit, trust
 - docker
 - Pipeline
 

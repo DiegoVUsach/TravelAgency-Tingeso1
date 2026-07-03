@@ -81,7 +81,7 @@ class ReservationServiceTest {
         ReservationResponseDTO response = reservationService.processCartReservations(request, "test@example.com");
 
         assertNotNull(response);
-        assertEquals("Reservas creadas exitosamente.", response.getMessage());
+        assertEquals("Reservations created successfully.", response.getMessage());
         assertEquals(200000, response.getSubtotal()); // 100000 * 2
         assertEquals(200000, response.getFinalTotal()); // no discounts
         assertEquals(0, response.getTotalDiscount());
@@ -508,7 +508,7 @@ class ReservationServiceTest {
         ReservationResponseDTO response = reservationService.calculateQuote(request, "test@example.com");
 
         assertNotNull(response);
-        assertEquals("Cotización calculada exitosamente.", response.getMessage());
+        assertEquals("Quote calculated successfully.", response.getMessage());
         assertEquals(200000, response.getSubtotal());
         assertEquals(200000, response.getFinalTotal());
     }
@@ -786,7 +786,7 @@ class ReservationServiceTest {
         assertEquals("Punta Cana", receipt.getDestination());
         assertEquals(2, receipt.getNumberOfPassengers());
         assertEquals(200000, receipt.getTotalPaid());
-        assertEquals("PAGADO OFICIALMENTE", receipt.getStatus());
+        assertEquals("OFFICIALLY PAID", receipt.getStatus());
         assertTrue(receipt.getReceiptCode().startsWith("REC-"));
     }
 

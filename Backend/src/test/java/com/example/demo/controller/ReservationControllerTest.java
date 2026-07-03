@@ -54,7 +54,7 @@ class ReservationControllerTest {
         request.setItems(List.of(item));
 
         ReservationResponseDTO response = new ReservationResponseDTO();
-        response.setMessage("Reservas creadas exitosamente.");
+        response.setMessage("Reservations created successfully.");
         response.setSubtotal(200000);
         response.setFinalTotal(200000);
         response.setTotalDiscount(0);
@@ -69,7 +69,7 @@ class ReservationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message").value("Reservas creadas exitosamente."))
+                .andExpect(jsonPath("$.message").value("Reservations created successfully."))
                 .andExpect(jsonPath("$.subtotal").value(200000));
     }
 
@@ -93,7 +93,7 @@ class ReservationControllerTest {
         request.setItems(Collections.emptyList());
 
         when(reservationService.processCartReservations(any(ReservationRequestDTO.class), eq("test@example.com")))
-                .thenThrow(new IllegalArgumentException("El carrito no puede estar vacío."));
+                .thenThrow(new IllegalArgumentException("The cart cannot be empty."));
 
         mockMvc.perform(post("/api/v1/reservations/cart")
                         .with(jwt().jwt(j -> j.claim("email", "test@example.com")))
@@ -113,7 +113,7 @@ class ReservationControllerTest {
         request.setItems(List.of(item));
 
         ReservationResponseDTO response = new ReservationResponseDTO();
-        response.setMessage("Cotización calculada exitosamente.");
+        response.setMessage("Quote calculated successfully.");
         response.setSubtotal(200000);
         response.setFinalTotal(180000);
         response.setTotalDiscount(20000);
@@ -127,7 +127,7 @@ class ReservationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Cotización calculada exitosamente."));
+                .andExpect(jsonPath("$.message").value("Quote calculated successfully."));
     }
 
     // ==================== GET /api/v1/reservations/my-reservations ====================
@@ -204,7 +204,7 @@ class ReservationControllerTest {
         receipt.setDestination("Punta Cana");
         receipt.setNumberOfPassengers(2);
         receipt.setTotalPaid(200000);
-        receipt.setStatus("PAGADO OFICIALMENTE");
+        receipt.setStatus("OFFICIALLY PAID");
 
         when(reservationService.generateReceipt(eq(1L), eq("test@example.com"), anyBoolean()))
                 .thenReturn(receipt);
@@ -213,13 +213,13 @@ class ReservationControllerTest {
                         .with(jwt().jwt(j -> j.claim("email", "test@example.com"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.receiptCode").value("REC-1-2026"))
-                .andExpect(jsonPath("$.status").value("PAGADO OFICIALMENTE"));
+                .andExpect(jsonPath("$.status").value("OFFICIALLY PAID"));
     }
 
     @Test
     void getReservationReceipt_NotOwner_ReturnsConflict() throws Exception {
         when(reservationService.generateReceipt(eq(1L), eq("other@example.com"), anyBoolean()))
-                .thenThrow(new IllegalStateException("Solo puedes acceder a los recibos de tus propias reservas."));
+                .thenThrow(new IllegalStateException("You can only access receipts for your own reservations."));
 
         mockMvc.perform(get("/api/v1/reservations/1/receipt")
                         .with(jwt().jwt(j -> j.claim("email", "other@example.com"))))

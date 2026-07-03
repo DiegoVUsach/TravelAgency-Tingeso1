@@ -1,7 +1,7 @@
 import Keycloak from 'keycloak-js';
 
 const keycloakConfig = {
-    url: 'http://localhost:9090', // keycloak url
+    url: import.meta.env.VITE_KEYCLOAK_URL || 'http://localhost:9090', // keycloak url
     realm: 'travelagency-realm',   // realm name
     clientId: 'travelagency-frontend' // client id
 };

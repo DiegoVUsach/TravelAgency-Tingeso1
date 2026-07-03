@@ -1,4 +1,4 @@
--- Insertar paquetes de prueba sin borrar nada (usando nuevos IDs para evitar colisiones)
+
 INSERT IGNORE INTO bundles (
     id_bundle, name_bundle, destination_bundle, description_bundle, 
     start_date_bundle, end_date_bundle, duration_bundle, price_bundle, 
@@ -23,7 +23,7 @@ INSERT IGNORE INTO bundles (
     'SPRING', 'STANDARD', 'AVAILABLE', '2026-10-01', '2026-10-31', 0.15
 );
 
--- Insertar las etiquetas de experiencias para los nuevos paquetes
+-- Insert experience type tags for the new bundles
 INSERT IGNORE INTO bundle_experience_types (bundle_id, experience_type) VALUES (100, 'RELAX');
 INSERT IGNORE INTO bundle_experience_types (bundle_id, experience_type) VALUES (100, 'ROMANTIC');
 INSERT IGNORE INTO bundle_experience_types (bundle_id, experience_type) VALUES (101, 'ADVENTURE');
