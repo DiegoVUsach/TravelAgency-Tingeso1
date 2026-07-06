@@ -1,12 +1,16 @@
 Personal notes, do not take as instructions, just a reminder for myself
 TODO:
- - ver que perfil y reservas funcione
- - poblar base de datos con datos de prueba
-
+ - ver que perfil y reservas funcione, kinda funciona
+ - hacer que un paquete pueda ser de 1 dia, es decir que empieze el 5 y termine el 5
+ - panel admin muestre cuantos cupos quedan y los cupos totales
+ - burbujas de paquetes deben tener la fecha de inicio y fin
+ - hacer sort de ranking, cambio menor
+ - no se como revisar lo de pending payment -> expired
  - junit, trust
-- docker
-- Pipeline
-
+ - docker
+ -Pipeline
+ - NUBE
+ 
 Progress
 # BACKEND
 E1 must be done at the end
@@ -38,11 +42,11 @@ E7
 keycloak url: http://localhost:9090
 realm name: travelagency-realm
 client id: travelagency-frontend
-
+kc.bat start-dev --http-port=9090
 
 # Versionamiento y Continuous Delivery (CI/CD)
 
-- Pruebas Unitarias (Testing)
+- Pruebas Unitarias (Testing) ok
 - Pipeline de Continuous Delivery (Entrega Continua) - docker, github actions, etc
 - Despliegue en Producción (Nube)
 
