@@ -6,6 +6,7 @@ TODO:
  - burbujas de paquetes deben tener la fecha de inicio y fin
  - hacer sort de ranking, cambio menor
  - no se como revisar lo de pending payment -> expired
+ - entender nginx conf y docker compose.yml
  - junit, trust
  - docker
  -Pipeline
