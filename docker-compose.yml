@@ -49,7 +49,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8080/health/ready || exit 1"]
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/localhost/9000"]
       interval: 15s
       timeout: 10s
       retries: 15
@@ -70,6 +70,9 @@ services:
       DB_PASSWORD: clave1234
       KEYCLOAK_URL: http://keycloak:8080
       KEYCLOAK_REALM: travelagency-realm
+      KEYCLOAK_CLIENT_SECRET: ula2S4xJH1EHbDAJsAOShsGfeUqePFW4
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://localhost/realms/travelagency-realm
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/travelagency-realm/protocol/openid-connect/certs
     networks:
       - travelagency-net
     depends_on:
@@ -93,6 +96,9 @@ services:
       DB_PASSWORD: clave1234
       KEYCLOAK_URL: http://keycloak:8080
       KEYCLOAK_REALM: travelagency-realm
+      KEYCLOAK_CLIENT_SECRET: ula2S4xJH1EHbDAJsAOShsGfeUqePFW4
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://localhost/realms/travelagency-realm
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/travelagency-realm/protocol/openid-connect/certs
     networks:
       - travelagency-net
     depends_on:
@@ -116,6 +122,9 @@ services:
       DB_PASSWORD: clave1234
       KEYCLOAK_URL: http://keycloak:8080
       KEYCLOAK_REALM: travelagency-realm
+      KEYCLOAK_CLIENT_SECRET: ula2S4xJH1EHbDAJsAOShsGfeUqePFW4
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://localhost/realms/travelagency-realm
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/travelagency-realm/protocol/openid-connect/certs
     networks:
       - travelagency-net
     depends_on:
